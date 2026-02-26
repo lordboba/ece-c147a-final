@@ -17,23 +17,20 @@ jobs:
         auto-update-conda: true
         python-version: "3.10"
         miniconda-version: "latest"
-        activate-environment: model/emg2qwerty
+        activate-environment: emg2qwerty
         environment-file: model/environment.yml
 
     - name: Install local package
       shell: bash -el {0}
-      run: |
-        conda activate model/emg2qwerty
-        pip install -e .
+      working-directory: model
+      run: pip install -e .
 
     - name: Run pre-commit checks
       shell: bash -el {0}
-      run: |
-        conda activate model/emg2qwerty
-        pre-commit run --all-files
+      working-directory: model
+      run: pre-commit run --all-files
 
     - name: Run tests
       shell: bash -el {0}
-      run: |
-        conda activate model/emg2qwerty
-        pytest
+      working-directory: model
+      run: pytest
