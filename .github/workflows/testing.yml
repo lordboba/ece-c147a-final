@@ -17,8 +17,8 @@ jobs:
         auto-update-conda: true
         python-version: "3.10"
         miniconda-version: "latest"
-        activate-environment: emg2qwerty
-        environment-file: environment.yml
+        activate-environment: model/emg2qwerty
+        environment-file: model/environment.yml
 
     - name: Install local package
       shell: bash -el {0}
