@@ -1,5 +1,5 @@
 # C147/247 Final Project
-### Winter 2026 
+### Winter 2026
 
 This course project is built upon the emg2qwerty work from Meta. The first section of this README provides some guidance for working with the repo and contains a running list of FAQs. **Note that the rest of the README is from the original repo and we encourage you to take a look at their work.**
 
@@ -31,7 +31,7 @@ A dataset of surface electromyography (sEMG) recordings while touch typing on a 
 git lfs install
 
 # Clone the repo, setup environment, and install local package
-git clone git@github.com:joe-lin-tech/emg2qwerty.git ~/emg2qwerty 
+git clone git@github.com:joe-lin-tech/emg2qwerty.git ~/emg2qwerty
 cd ~/emg2qwerty
 conda env create -f environment.yml
 conda activate emg2qwerty

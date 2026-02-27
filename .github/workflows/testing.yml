@@ -27,8 +27,9 @@ jobs:
 
     - name: Run pre-commit checks
       shell: bash -el {0}
-      working-directory: model
-      run: pre-commit run --all-files
+      env:
+        SKIP: no-commit-to-branch
+      run: pre-commit run --config model/.pre-commit-config.yaml --all-files
 
     - name: Run tests
       shell: bash -el {0}
