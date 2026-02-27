@@ -23,7 +23,9 @@ jobs:
     - name: Install local package
       shell: bash -el {0}
       working-directory: model
-      run: pip install -e .
+      run: |
+        pip install https://github.com/kpu/kenlm/archive/master.zip
+        pip install -e .
 
     - name: Run pre-commit checks
       shell: bash -el {0}
