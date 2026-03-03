@@ -7,11 +7,18 @@
 import logging
 import os
 import pprint
+import warnings
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 import hydra
+# Suppress noisy deprecation warning from lightning_fabric's pkg_resources import.
+warnings.filterwarnings(
+    "ignore",
+    message=r"pkg_resources is deprecated as an API\..*",
+    category=UserWarning,
+)
 import pytorch_lightning as pl
 from hydra.utils import get_original_cwd, instantiate
 from omegaconf import DictConfig, ListConfig, OmegaConf
