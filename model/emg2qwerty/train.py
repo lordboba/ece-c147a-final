@@ -19,6 +19,11 @@ warnings.filterwarnings(
     message=r"pkg_resources is deprecated as an API\..*",
     category=UserWarning,
 )
+warnings.filterwarnings(
+    "ignore",
+    message=r"The feature .* is currently marked under review\..*",
+    category=UserWarning,
+)
 import pytorch_lightning as pl
 from hydra.utils import get_original_cwd, instantiate
 from omegaconf import DictConfig, ListConfig, OmegaConf
