@@ -25,4 +25,17 @@ When training in Google Cloud, there will be access to GPU resources. You can th
 python -m emg2qwerty.train user=single_user trainer.accelerator=gpu trainer.devices=8 --multirun
 ```
 
+Tasks Divided:
+Architectures:
+1. Transformer - Tyler
+2. RNN - Justin
+3. LSTM - Akash
+4. GRU - Prabhvir (or Akash or drop)
+
+Data Modification
+1. Channel tuning
+
+1. Hyperparameter + epoch tuning
+2. Experimental activation functions (ones by deepseek, others, etc.)
+
 
