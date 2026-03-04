@@ -16,6 +16,7 @@ python -m emg2qwerty.train user=single_user trainer.accelerator=gpu trainer.devi
 
 If you don't have a GPU, use this:
 ```python3
+TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 python -m emg2qwerty.train user=single_user trainer.accelerator=cpu trainer.devices=1 trainer.max_epochs=1
 ```
 
