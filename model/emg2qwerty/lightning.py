@@ -11,6 +11,10 @@ from typing import Any, ClassVar
 import numpy as np
 import pytorch_lightning as pl
 import torch
+
+# Disable cuDNN to avoid CUDNN_STATUS_NOT_SUPPORTED on some driver/GPU combos (e.g. Tesla T4 + PyTorch cuDNN v8).
+#torch.backends.cudnn.enabled = False
+
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from torch import nn

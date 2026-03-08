@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Any
 
 import hydra
+#import torch
+#torch.backends.cudnn.enabled = False
 # Suppress noisy deprecation warning from lightning_fabric's pkg_resources import.
 warnings.filterwarnings(
     "ignore",
