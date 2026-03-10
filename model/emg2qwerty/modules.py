@@ -304,5 +304,6 @@ class GRUEncoder(nn.Module):
         self.projection = nn.Linear(out_size, num_features)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        x, _ = self.gru(inputs)       # (T, N, hidden_size * directions)
-        return self.projection(x)     # (T, N, num_features)
+        with torch.backends.cudnn.flags(enabled=False):
+            x, _ = self.gru(inputs.contiguous())
+        return self.projection(x)
