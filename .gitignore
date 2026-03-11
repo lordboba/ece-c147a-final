@@ -5,3 +5,10 @@ tmp/
 *.swp
 
 data/
+
+**/*.aux
+**/*.fdb_latexmk
+**/*.fls
+**/*.out
+**/*.sty
+**/*.synctex.gz
