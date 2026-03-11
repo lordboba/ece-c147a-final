@@ -3,13 +3,13 @@ module:
   _target_: emg2qwerty.lightning.GRUCTCModule
   in_features: 528
   mlp_features: [256]
-  hidden_size: 256
-  num_layers: 2
-  dropout: 0.0
+  hidden_size: 128
+  num_layers: 4
+  dropout: 0.1
   bidirectional: true
   optimizer:
     _target_: torch.optim.Adam
-    lr: 0.0003
+    lr: 0.0001
   lr_scheduler:
     scheduler:
       _target_: pl_bolts.optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR
