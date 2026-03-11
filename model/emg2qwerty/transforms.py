@@ -243,3 +243,29 @@ class SpecAugment:
 
         # (..., C, freq, T) -> (T, ..., C, freq)
         return x.movedim(-1, 0)
+
+@dataclass
+class Resample:
+    """Resamples the input tensor from ``orig_freq`` to ``new_freq``.
+    The input must be of shape (T, ...).
+
+    Args:
+        orig_freq (int): The original frequency of the signal.
+        new_freq (int): The desired frequency of the signal.
+    """
+
+    orig_freq: int
+    new_freq: int
+
+    def __post_init__(self) -> None:
+        self.resampler = torchaudio.transforms.Resample(
+            orig_freq=self.orig_freq, new_freq=self.new_freq
+        )
+
+    def __call__(self, tensor: torch.Tensor) -> torch.Tensor:
+        # (T, ...) -> (..., T)
+        x = tensor.movedim(0, -1)
+        # Resample expects (..., T)
+        resampled = self.resampler(x)
+        # (..., T_new) -> (T_new, ...)
+        return resampled.movedim(-1, 0)
