@@ -22,7 +22,7 @@ python -m emg2qwerty.train user=single_user trainer.accelerator=cpu trainer.devi
 
 When training in Google Cloud, there will be access to GPU resources. You can thus train the model with:
 ```python3
-python -m emg2qwerty.train user=single_user trainer.accelerator=gpu trainer.devices=8 --multirun
+python -m emg2qwerty.train user=single_user trainer.accelerator=gpu trainer.devices=8
 ```
 
 Tasks Divided:
