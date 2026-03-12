@@ -3,6 +3,10 @@ to_tensor:
   _target_: emg2qwerty.transforms.ToTensor
   fields: [emg_left, emg_right]
 
+channel_subset:
+  _target_: emg2qwerty.transforms.ChannelSubset
+  channel_indices: null
+
 band_rotation:
   _target_: emg2qwerty.transforms.ForEach  # i.i.d rotation offset for each band
   transform:
@@ -36,12 +40,14 @@ transforms:
     - ${resample}
     - ${band_rotation}
     - ${temporal_jitter}
+    - ${channel_subset}
     - ${logspec}
     - ${specaug}
 
   val:
     - ${to_tensor}
     - ${resample}
+    - ${channel_subset}
     - ${logspec}
 
   test: ${transforms.val}

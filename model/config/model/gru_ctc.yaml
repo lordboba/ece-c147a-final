@@ -1,12 +1,13 @@
 # @package _global_
 module:
   _target_: emg2qwerty.lightning.GRUCTCModule
-  in_features: 528
   mlp_features: [384]
   hidden_size: 256
   num_layers: 4
   dropout: 0.1
   bidirectional: true
+  n_fft: ${logspec.n_fft}
+  channel_indices: ${channel_subset.channel_indices}
   optimizer:
     _target_: torch.optim.Adam
     lr: 0.0003
