@@ -1,492 +1,361 @@
 \documentclass{article}
 
+% camera-ready mode shows author names in the PDF
+\usepackage[final]{neurips_2024}
 
-% if you need to pass options to natbib, use, e.g.:
-%     \PassOptionsToPackage{numbers, compress}{natbib}
-% before loading neurips_2024
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
 
-
-% ready for submission
-\usepackage{neurips_2024}
-
-
-% to compile a preprint version, e.g., for submission to arXiv, add add the
-% [preprint] option:
-%     \usepackage[preprint]{neurips_2024}
-
-
-% to compile a camera-ready version, add the [final] option, e.g.:
-%     \usepackage[final]{neurips_2024}
-
-
-% to avoid loading the natbib package, add option nonatbib:
-%    \usepackage[nonatbib]{neurips_2024}
-
-
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
-\usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
-\usepackage{xcolor}         % colors
-
-
-\title{Formatting Instructions For NeurIPS 2024}
-
-
-% The \author macro works with any number of authors. There are two commands
-% used to separate the names and addresses of multiple authors: \And and \AND.
-%
-% Using \And between authors leaves it to LaTeX to determine where to break the
-% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
-% authors names on the first line, and the last on the second line, try using
-% \AND instead of \And before the third author name.
-
+\title{Exploring Recurrent Architectures for EMG-to-QWERTY Decoding}
 
 \author{%
-  David S.~Hippocampus\thanks{Use footnote for providing further information
-    about author (webpage, alternative address)---\emph{not} for acknowledging
-    funding agencies.} \\
-  Department of Computer Science\\
-  Cranberry-Lemon University\\
-  Pittsburgh, PA 15213 \\
-  \texttt{hippo@cs.cranberry-lemon.edu} \\
-  % examples of more authors
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \AND
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
+  Akash Madiraju \\
+  University of California, Los Angeles \\
+  \texttt{akashm153@ucla.edu}
+  \And
+  Justin Chen \\
+  University of California, Los Angeles \\
+  \texttt{justinc918@ucla.edu}
+  \And
+  Prabhvir Singh \\
+  University of California, Los Angeles \\
+  \texttt{prabab@ucla.edu}
+  \And
+  Tyler Xiao \\
+  University of California, Los Angeles \\
+  \texttt{tylerxiao@ucla.edu}
 }
-
 
 \begin{document}
 
-
 \maketitle
 
-
 \begin{abstract}
-  The abstract paragraph should be indented \nicefrac{1}{2}~inch (3~picas) on
-  both the left- and right-hand margins. Use 10~point type, with a vertical
-  spacing (leading) of 11~points.  The word \textbf{Abstract} must be centered,
-  bold, and in point size 12. Two line spaces precede the abstract. The abstract
-  must be limited to one paragraph.
+This report template is prepared for the ECE C147/C247 final project on the
+emg2qwerty dataset. Our project studies how recurrent sequence models decode
+typed characters from wrist electromyography (EMG) signals, with a primary
+focus on comparing vanilla RNN, LSTM, and GRU architectures under the provided
+single-user split for subject 89335547. The scaffold below is intentionally
+structured to match the required class write-up sections while leaving clear
+placeholders for final results, analysis, and reproducibility details. Dummy
+values are included in the main result tables so the report can be compiled and
+iterated on before all experiments are complete.
 \end{abstract}
 
-
-\section{Submission of papers to NeurIPS 2024}
-
-
-Please read the instructions below carefully and follow them faithfully.
-
-
-\subsection{Style}
-
-
-Papers to be submitted to NeurIPS 2024 must be prepared according to the
-instructions presented here. Papers may only be up to {\bf nine} pages long,
-including figures. Additional pages \emph{containing only acknowledgments and
-references} are allowed. Papers that exceed the page limit will not be
-reviewed, or in any other way considered for presentation at the conference.
-
-
-The margins in 2024 are the same as those in previous years.
-
-
-Authors are required to use the NeurIPS \LaTeX{} style files obtainable at the
-NeurIPS website as indicated below. Please make sure you use the current files
-and not previous versions. Tweaking the style files may be grounds for
-rejection.
-
-
-\subsection{Retrieval of style files}
-
-
-The style files for NeurIPS and other conference information are available on
-the website at
-\begin{center}
-  \url{http://www.neurips.cc/}
-\end{center}
-The file \verb+neurips_2024.pdf+ contains these instructions and illustrates the
-various formatting requirements your NeurIPS paper must satisfy.
-
-
-The only supported style file for NeurIPS 2024 is \verb+neurips_2024.sty+,
-rewritten for \LaTeXe{}.  \textbf{Previous style files for \LaTeX{} 2.09,
-  Microsoft Word, and RTF are no longer supported!}
-
-
-The \LaTeX{} style file contains three optional arguments: \verb+final+, which
-creates a camera-ready copy, \verb+preprint+, which creates a preprint for
-submission to, e.g., arXiv, and \verb+nonatbib+, which will not load the
-\verb+natbib+ package for you in case of package clash.
-
-
-\paragraph{Preprint option}
-If you wish to post a preprint of your work online, e.g., on arXiv, using the
-NeurIPS style, please use the \verb+preprint+ option. This will create a
-nonanonymized version of your work with the text ``Preprint. Work in progress.''
-in the footer. This version may be distributed as you see fit, as long as you do not say which conference it was submitted to. Please \textbf{do
-  not} use the \verb+final+ option, which should \textbf{only} be used for
-papers accepted to NeurIPS.
-
-
-At submission time, please omit the \verb+final+ and \verb+preprint+
-options. This will anonymize your submission and add line numbers to aid
-review. Please do \emph{not} refer to these line numbers in your paper as they
-will be removed during generation of camera-ready copies.
-
-
-The file \verb+neurips_2024.tex+ may be used as a ``shell'' for writing your
-paper. All you have to do is replace the author, title, abstract, and text of
-the paper with your own.
-
-
-The formatting instructions contained in these style files are summarized in
-Sections \ref{gen_inst}, \ref{headings}, and \ref{others} below.
-
-
-\section{General formatting instructions}
-\label{gen_inst}
-
-
-The text must be confined within a rectangle 5.5~inches (33~picas) wide and
-9~inches (54~picas) long. The left margin is 1.5~inch (9~picas).  Use 10~point
-type with a vertical spacing (leading) of 11~points.  Times New Roman is the
-preferred typeface throughout, and will be selected for you by default.
-Paragraphs are separated by \nicefrac{1}{2}~line space (5.5 points), with no
-indentation.
-
-
-The paper title should be 17~point, initial caps/lower case, bold, centered
-between two horizontal rules. The top rule should be 4~points thick and the
-bottom rule should be 1~point thick. Allow \nicefrac{1}{4}~inch space above and
-below the title to rules. All pages should start at 1~inch (6~picas) from the
-top of the page.
-
-
-For the final version, authors' names are set in boldface, and each name is
-centered above the corresponding address. The lead author's name is to be listed
-first (left-most), and the co-authors' names (if different address) are set to
-follow. If there is only one co-author, list both author and co-author side by
-side.
-
-
-Please pay special attention to the instructions in Section \ref{others}
-regarding figures, tables, acknowledgments, and references.
-
-
-\section{Headings: first level}
-\label{headings}
-
-
-All headings should be lower case (except for first word and proper nouns),
-flush left, and bold.
-
-
-First-level headings should be in 12-point type.
-
-
-\subsection{Headings: second level}
-
-
-Second-level headings should be in 10-point type.
-
-
-\subsubsection{Headings: third level}
-
-
-Third-level headings should be in 10-point type.
-
-
-\paragraph{Paragraphs}
-
-
-There is also a \verb+\paragraph+ command available, which sets the heading in
-bold, flush left, and inline with the text, with the heading followed by 1\,em
-of space.
-
-
-\section{Citations, figures, tables, references}
-\label{others}
-
-
-These instructions apply to everyone.
-
-
-\subsection{Citations within the text}
-
-
-The \verb+natbib+ package will be loaded for you by default.  Citations may be
-author/year or numeric, as long as you maintain internal consistency.  As to the
-format of the references themselves, any style is acceptable as long as it is
-used consistently.
-
-
-The documentation for \verb+natbib+ may be found at
-\begin{center}
-  \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
-\end{center}
-Of note is the command \verb+\citet+, which produces citations appropriate for
-use in inline text.  For example,
-\begin{verbatim}
-   \citet{hasselmo} investigated\dots
-\end{verbatim}
-produces
-\begin{quote}
-  Hasselmo, et al.\ (1995) investigated\dots
-\end{quote}
-
-
-If you wish to load the \verb+natbib+ package with options, you may add the
-following before loading the \verb+neurips_2024+ package:
-\begin{verbatim}
-   \PassOptionsToPackage{options}{natbib}
-\end{verbatim}
-
-
-If \verb+natbib+ clashes with another package you load, you can add the optional
-argument \verb+nonatbib+ when loading the style file:
-\begin{verbatim}
-   \usepackage[nonatbib]{neurips_2024}
-\end{verbatim}
-
-
-As submission is double blind, refer to your own published work in the third
-person. That is, use ``In the previous work of Jones et al.\ [4],'' not ``In our
-previous work [4].'' If you cite your other papers that are not widely available
-(e.g., a journal paper under review), use anonymous author names in the
-citation, e.g., an author of the form ``A.\ Anonymous'' and include a copy of the anonymized paper in the supplementary material.
-
-
-\subsection{Footnotes}
-
-
-Footnotes should be used sparingly.  If you do require a footnote, indicate
-footnotes with a number\footnote{Sample of the first footnote.} in the
-text. Place the footnotes at the bottom of the page on which they appear.
-Precede the footnote with a horizontal rule of 2~inches (12~picas).
-
-
-Note that footnotes are properly typeset \emph{after} punctuation
-marks.\footnote{As in this example.}
-
-
-\subsection{Figures}
-
-
-\begin{figure}
+\section{Introduction}
+
+The ECE C147/C247 final project emphasizes exploration beyond standard CNN
+pipelines, making the emg2qwerty dataset a natural testbed for sequential
+models. In this project, the core goal is to predict QWERTY keystrokes from
+surface electromyography signals recorded from both wrists. Because the input is
+continuous temporal data and the output is an unsegmented character sequence,
+the task is well suited to recurrent architectures trained with the
+connectionist temporal classification (CTC) loss [1].
+
+Rather than re-introducing the general EMG decoding problem, this report should
+motivate the specific experimental question being studied. One suitable framing
+for this project is: \emph{which recurrent architecture and training setup
+achieve the lowest character error rate on the provided single-user split?}
+Another angle is to ask how much performance changes with hidden size, depth,
+dropout, training duration, or available training data. The course rubric
+rewards not only performance, but also creativity and insight, so the final
+draft should explain why a design choice helps or hurts decoding quality rather
+than only listing metric values.
+
+The remainder of this scaffold is organized around the required course sections:
+\textbf{Methods}, \textbf{Results}, and \textbf{Discussion}. It also includes
+placeholder tables for architecture comparisons, hyperparameter sweeps,
+official and future data splits, and compute reporting so the final paper can
+be updated quickly as experiments finish.
+
+\section{Methods}
+
+\subsection{Dataset and evaluation setup}
+
+This project uses the emg2qwerty dataset released by Meta Reality Labs [2]. For
+the baseline course setting, we use the
+provided single-subject split for user 89335547. The codebase already defines a
+train/validation/test split in \texttt{single\_user.yaml}; the final report should
+state that these official sessions were used for the main comparison so results
+across architectures are directly comparable.
+
+\begin{table}[t]
+  \caption{Official single-user split used for the main experiments}
+  \label{tab:official-split}
   \centering
-  \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-  \caption{Sample figure caption.}
-\end{figure}
-
-
-All artwork must be neat, clean, and legible. Lines should be dark enough for
-purposes of reproduction. The figure number and caption always appear after the
-figure. Place one line space before the figure caption and one line space after
-the figure. The figure caption should be lower case (except for first word and
-proper nouns); figures are numbered consecutively.
-
-
-You may use color figures.  However, it is best for the figure captions and the
-paper body to be legible if the paper is printed in either black/white or in
-color.
-
-
-\subsection{Tables}
-
-
-All tables must be centered, neat, clean and legible.  The table number and
-title always appear before the table.  See Table~\ref{sample-table}.
-
-
-Place one line space before the table title, one line space after the
-table title, and one line space after the table. The table title must
-be lower case (except for first word and proper nouns); tables are
-numbered consecutively.
-
-
-Note that publication-quality tables \emph{do not contain vertical rules.} We
-strongly suggest the use of the \verb+booktabs+ package, which allows for
-typesetting high-quality, professional tables:
-\begin{center}
-  \url{https://www.ctan.org/pkg/booktabs}
-\end{center}
-This package was used to typeset Table~\ref{sample-table}.
-
-
-\begin{table}
-  \caption{Sample table title}
-  \label{sample-table}
-  \centering
-  \begin{tabular}{lll}
+  \begin{tabular}{lrrl}
     \toprule
-    \multicolumn{2}{c}{Part}                   \\
-    \cmidrule(r){1-2}
-    Name     & Description     & Size ($\mu$m) \\
+    Split & Sessions & User ID & Notes \\
     \midrule
-    Dendrite & Input terminal  & $\sim$100     \\
-    Axon     & Output terminal & $\sim$10      \\
-    Soma     & Cell body       & up to $10^6$  \\
+    Train & 16 & 89335547 & Official training sessions from the provided config \\
+    Validation & 1 & 89335547 & Used for model selection and early comparison \\
+    Test & 1 & 89335547 & Held out for the final architecture comparison \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\subsection{Math}
-Note that display math in bare TeX commands will not create correct line numbers for submission. Please use LaTeX (or AMSTeX) commands for unnumbered display math. (You really shouldn't be using \$\$ anyway; see \url{https://tex.stackexchange.com/questions/503/why-is-preferable-to} and \url{https://tex.stackexchange.com/questions/40492/what-are-the-differences-between-align-equation-and-displaymath} for more information.)
+The main evaluation metric is character error rate (CER), which is the primary
+metric specified in the project instructions. It is also useful to report the
+deletion, insertion, and substitution components separately, since those often
+reveal different failure modes. If training logs already contain CTC loss, CER,
+IER, DER, and SER, the final paper should report those values consistently
+across validation and test splits.
 
-\subsection{Final instructions}
+\subsection{Model families}
 
-Do not change any aspects of the formatting parameters in the style files.  In
-particular, do not modify the width or length of the rectangle the text should
-fit into, and do not change font sizes (except perhaps in the
-\textbf{References} section; see below). Please note that pages should be
-numbered.
+Our current study compares several recurrent architectures that operate on
+windowed EMG features and decode character sequences with CTC. The minimum
+course expectation is to evaluate at least one recurrent model, but this report
+is prepared for a broader architecture study including vanilla RNNs, LSTMs, and
+GRUs. If time permits, the same structure can also include a baseline TDS model,
+a CNN+RNN hybrid, or a transformer-style model for additional comparison.
 
+\begin{table}[t]
+  \caption{Architecture configurations to compare}
+  \label{tab:architecture-config}
+  \centering
+  \begin{tabular}{lllll}
+    \toprule
+    Model & Layers & Hidden size & Dropout & Decoder \\
+    \midrule
+    RNN & 3 & 256 & 0.10 & CTC greedy \\
+    LSTM & 3 & 256 & 0.10 & CTC greedy \\
+    GRU & 4 & 256 & 0.10 & CTC greedy \\
+    TDS baseline & -- & -- & -- & CTC greedy \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-\section{Preparing PDF files}
+The final draft should briefly explain each model family, but only to the
+extent needed to justify the comparison. For example, one paragraph can note
+that vanilla RNNs provide a lightweight recurrent baseline, LSTMs explicitly
+model long-term memory through gating, and GRUs offer a simplified gating
+mechanism that may yield a better trade-off between optimization stability and
+compute cost.
 
+\subsection{Training protocol and hyperparameters}
 
-Please prepare submission files with paper size ``US Letter,'' and not, for
-example, ``A4.''
+To make the report reproducible, list the optimizer, learning rate schedule,
+batch size, number of epochs, compute device, and any feature preprocessing
+choices. The scaffold below gives a compact place to summarize runs. Replace the
+dummy values with the exact settings used in the best and comparison models.
 
+\begin{table}[t]
+  \caption{Sample hyperparameter log for recurrent model experiments}
+  \label{tab:hyperparameters}
+  \centering
+  \small
+  \begin{tabular}{lccccc p{0.22\linewidth}}
+    \toprule
+    Run ID & Model & LR & Batch size & Epochs & Hidden size & Notes \\
+    \midrule
+    A1 & RNN & 3e-4 & 32 & 40 & 256 & Baseline recurrent run \\
+    A2 & LSTM & 3e-4 & 32 & 40 & 256 & Same setup as A1 \\
+    A3 & GRU & 3e-4 & 32 & 40 & 256 & Best gating-based variant \\
+    A4 & GRU & 1e-4 & 32 & 40 & 384 & Larger hidden state sweep \\
+    A5 & GRU & 3e-4 & 16 & 60 & 256 & Longer training with smaller batch \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-Fonts were the main cause of problems in the past years. Your PDF file must only
-contain Type 1 or Embedded TrueType fonts. Here are a few instructions to
-achieve this.
+If you investigate preprocessing or data-modification strategies, add a short
+subsection here describing exactly what changed. Examples include channel
+selection, alternative normalization, reduced training fractions, or modified
+sampling rates. Keep the text focused on what was changed and why that change
+could plausibly affect CER.
 
+\section{Results}
 
+This section should present the main quantitative findings and point the reader
+to the most important comparisons. A clean structure is to start with the
+primary architecture comparison on the official single-user split, then follow
+with one or two ablations such as hyperparameter sensitivity, reduced-data
+training, or alternative preprocessing.
+
+\begin{table}[t]
+  \caption{Sample architecture comparison with placeholder metrics}
+  \label{tab:architecture-results}
+  \centering
+  \begin{tabular}{lccccc}
+    \toprule
+    Model & Val CER $\downarrow$ & Test CER $\downarrow$ & Test IER & Test DER & Test SER \\
+    \midrule
+    RNN & 19.8 & 27.4 & 3.1 & 4.2 & 20.1 \\
+    LSTM & 18.3 & 25.6 & 2.9 & 3.7 & 19.0 \\
+    GRU & 17.6 & 24.9 & 2.7 & 3.5 & 18.8 \\
+    TDS baseline & 21.5 & 29.3 & 3.8 & 4.6 & 20.9 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Table~\ref{tab:architecture-results} is currently populated with dummy values
+so the paper has a realistic layout during drafting. In the final version,
+replace these numbers with actual metrics from the training logs and state which
+model achieved the best validation CER and which model achieved the best held
+out test CER. If a model performs inconsistently across validation and test,
+discuss that explicitly rather than hiding it.
+
+\begin{table}[t]
+  \caption{Sample run summary with loss, CER, and compute placeholders}
+  \label{tab:run-summary}
+  \centering
+  \begin{tabular}{lcccccc}
+    \toprule
+    Run ID & Val loss & Val CER & Test loss & Test CER & Time (hr) & Device \\
+    \midrule
+    A1 & 0.71 & 19.8 & 0.93 & 27.4 & 0.9 & 1$\times$T4 \\
+    A2 & 0.65 & 18.3 & 0.86 & 25.6 & 1.1 & 1$\times$T4 \\
+    A3 & 0.58 & 17.6 & 0.81 & 24.9 & 1.0 & 1$\times$T4 \\
+    A4 & 0.60 & 18.1 & 0.83 & 25.1 & 1.4 & 1$\times$T4 \\
+    A5 & 0.56 & 17.9 & 0.80 & 25.0 & 1.7 & 1$\times$T4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Potential split and data-efficiency studies}
+
+The course handout explicitly suggests studying how much data is needed, how
+many channels are needed, and how sampling rate affects performance. The table
+below is included so those additional experiments can be plugged into the final
+report without restructuring the document.
+
+\begin{table}[t]
+  \caption{Suggested future split and ablation studies}
+  \label{tab:future-splits}
+  \centering
+  \begin{tabular}{p{0.20\linewidth}p{0.25\linewidth}p{0.18\linewidth}p{0.22\linewidth}}
+    \toprule
+    Study type & Split or subset definition & Primary metric & Purpose \\
+    \midrule
+    Reduced-data study & 25\%, 50\%, 75\%, and 100\% of train sessions & CER & Measure data efficiency \\
+    Session ablation & First 4, 8, 12, and 16 train sessions & CER & Track how added sessions improve decoding \\
+    Channel ablation & Full channel set vs.\ reduced channel subsets & CER & Estimate minimum useful sensor count \\
+    Sampling-rate study & Downsampled EMG features at multiple rates & CER & Measure temporal resolution sensitivity \\
+    Cross-user extension & Train on one or more extra users, test per split & CER & Evaluate generalization beyond one user \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+If these studies are included, the final draft should explain the split protocol
+precisely. For example, if you sample only a subset of train sessions, state
+whether the validation and test sessions remain unchanged. If the experiment
+changes channels or sampling rate, make clear whether the model architecture is
+otherwise held fixed.
+
+\subsection{Qualitative placeholders}
+
+If you later generate plots, this report is ready for:
 \begin{itemize}
-
-
-\item You should directly generate PDF files using \verb+pdflatex+.
-
-
-\item You can check which fonts a PDF files uses.  In Acrobat Reader, select the
-  menu Files$>$Document Properties$>$Fonts and select Show All Fonts. You can
-  also use the program \verb+pdffonts+ which comes with \verb+xpdf+ and is
-  available out-of-the-box on most Linux machines.
-
-
-\item \verb+xfig+ "patterned" shapes are implemented with bitmap fonts.  Use
-  "solid" shapes instead.
-
-
-\item The \verb+\bbold+ package almost always uses bitmap fonts.  You should use
-  the equivalent AMS Fonts:
-\begin{verbatim}
-   \usepackage{amsfonts}
-\end{verbatim}
-followed by, e.g., \verb+\mathbb{R}+, \verb+\mathbb{N}+, or \verb+\mathbb{C}+
-for $\mathbb{R}$, $\mathbb{N}$ or $\mathbb{C}$.  You can also use the following
-workaround for reals, natural and complex:
-\begin{verbatim}
-   \newcommand{\RR}{I\!\!R} %real numbers
-   \newcommand{\Nat}{I\!\!N} %natural numbers
-   \newcommand{\CC}{I\!\!\!\!C} %complex numbers
-\end{verbatim}
-Note that \verb+amsfonts+ is automatically loaded by the \verb+amssymb+ package.
-
-
+  \item training and validation CER over epochs,
+  \item CER as a function of hidden size or number of layers,
+  \item CER versus fraction of training data,
+  \item error breakdowns showing insertion, deletion, and substitution trends.
 \end{itemize}
 
+\begin{figure}[t]
+  \centering
+  \fbox{\rule[-0.5cm]{0cm}{4.2cm}\rule[-0.5cm]{0.9\linewidth}{0cm}}
+  \caption{Placeholder for a training-curve or ablation plot. Replace this box
+  with a real figure exported from your experiment notebook or analysis script.}
+  \label{fig:placeholder-plot}
+\end{figure}
 
-If your file contains type 3 fonts or non embedded TrueType fonts, we will ask
-you to fix it.
+\section{Discussion}
 
+The discussion should do more than restate the lowest CER. This is the section
+where you explain what you learned from the comparison. Questions worth
+answering include: Did gated recurrent models outperform the vanilla RNN? Was
+the improvement large enough to justify extra compute? Were some runs more
+stable during training? Did deeper or wider models actually help, or did they
+mostly overfit the single-user split?
 
-\subsection{Margins in \LaTeX{}}
+For a strong final write-up, include at least one interpretation tied directly
+to the course rubric. For example, if the GRU achieves lower CER than the RNN,
+you might hypothesize that gating helps preserve relevant temporal context in
+the EMG sequence while avoiding some of the optimization difficulty of a plain
+recurrent model. If an LSTM does not improve over a GRU, you can discuss whether
+the added parameters and memory mechanisms were unnecessary for the observed time
+scale of the task.
 
+\subsection{Limitations}
 
-Most of the margin problems come from figures positioned by hand using
-\verb+\special+ or other commands. We suggest using the command
-\verb+\includegraphics+ from the \verb+graphicx+ package. Always specify the
-figure width as a multiple of the line width as in the example below:
-\begin{verbatim}
-   \usepackage[pdftex]{graphicx} ...
-   \includegraphics[width=0.8\linewidth]{myfile.pdf}
-\end{verbatim}
-See Section 4.4 in the graphics bundle documentation
-(\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
+This project currently focuses on a single user because the baseline assignment
+explicitly allows full credit on that setting. However, that choice limits how
+strongly the results can generalize across users, sessions, and hardware
+conditions. The final discussion should also note any limits from compute
+budget, the number of random seeds used, and the extent of hyperparameter
+search. If error bars or repeated trials are not included, say so directly.
 
+\subsection{Reproducibility notes}
 
-A number of width problems arise when \LaTeX{} cannot properly hyphenate a
-line. Please give LaTeX hyphenation hints using the \verb+\-+ command when
-necessary.
+The final report should include the exact training command, environment, and
+best checkpoint settings for the main comparison. One compact way to do this is
+to mention the training command in the discussion or appendix, for example using
+Hydra overrides such as \texttt{user=single\_user model=gru\_ctc
+trainer.max\_epochs=40}. Add the exact command, seed, and device information
+once your final experiment recipe is settled.
+
+\begin{table}[t]
+  \caption{Compute and reproducibility checklist for final insertion}
+  \label{tab:compute}
+  \centering
+  \small
+  \begin{tabular}{lp{0.22\linewidth}p{0.34\linewidth}}
+    \toprule
+    Item & Placeholder value & Final note to fill in \\
+    \midrule
+    Framework & PyTorch Lightning & Version and environment file \\
+    Main device & 1$\times$GPU & Specify model, memory, and provider \\
+    Training time & \textasciitilde1 hr / 40 epochs & Replace with measured wall-clock time \\
+    Dataset split & Single user 89335547 & Mention exact config path \\
+    Main command & \texttt{python -m emg2qwerty.train ...} & Insert exact command used \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \begin{ack}
-Use unnumbered first level headings for the acknowledgments. All acknowledgments
-go at the end of the paper before the list of references. Moreover, you are required to declare
-funding (financial activities supporting the submitted work) and competing interests (related financial activities outside the submitted work).
-More information about this disclosure can be found at: \url{https://neurips.cc/Conferences/2024/PaperInformation/FundingDisclosure}.
-
-
-Do {\bf not} include this section in the anonymized submission, only in the final paper. You can use the \texttt{ack} environment provided in the style file to automatically hide this section in the anonymized submission.
+This template follows the official NeurIPS 2024 style requested by the course
+handout and is adapted for the ECE C147/C247 final project on the emg2qwerty
+dataset. Replace this paragraph with any acknowledgments, compute-credit notes,
+or dataset access notes that you want in the final submission.
 \end{ack}
 
 \section*{References}
 
+{\small
 
-References follow the acknowledgments in the camera-ready paper. Use unnumbered first-level heading for
-the references. Any choice of citation style is acceptable as long as you are
-consistent. It is permissible to reduce the font size to \verb+small+ (9 point)
-when listing the references.
-Note that the Reference section does not count towards the page limit.
-\medskip
+[1] Alex Graves, Santiago Fernandez, Faustino Gomez, and Jurgen Schmidhuber.
+Connectionist temporal classification: Labelling unsegmented sequence data with
+recurrent neural networks. In \textit{Proceedings of the 23rd International
+Conference on Machine Learning}, pages 369--376, 2006.
 
+[2] Viswanath Sivakumar, Jeffrey Seely, Alan Du, Sean R. Bittner, Adam
+Berenzweig, Anuoluwapo Bolarinwa, Alexandre Gramfort, and Michael I. Mandel.
+\textit{emg2qwerty: A large dataset with baselines for touch typing using
+surface electromyography}, 2024. arXiv:2410.20081.
 
-{
-\small
-
-
-[1] Alexander, J.A.\ \& Mozer, M.C.\ (1995) Template-based algorithms for
-connectionist rule extraction. In G.\ Tesauro, D.S.\ Touretzky and T.K.\ Leen
-(eds.), {\it Advances in Neural Information Processing Systems 7},
-pp.\ 609--616. Cambridge, MA: MIT Press.
-
-
-[2] Bower, J.M.\ \& Beeman, D.\ (1995) {\it The Book of GENESIS: Exploring
-  Realistic Neural Models with the GEneral NEural SImulation System.}  New York:
-TELOS/Springer--Verlag.
-
-
-[3] Hasselmo, M.E., Schnell, E.\ \& Barkai, E.\ (1995) Dynamics of learning and
-recall at excitatory recurrent synapses and cholinergic modulation in rat
-hippocampal region CA3. {\it Journal of Neuroscience} {\bf 15}(7):5249-5262.
+[3] ECE C147/C247 staff. \textit{ECE C147/C247, Winter 2026 project
+guidelines}, 2026.
 }
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
 
 \section{Appendix / supplemental material}
 
-
-Optionally include supplemental material (complete proofs, additional experiments and plots) in appendix.
-All such materials \textbf{SHOULD be included in the main submission.}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Use the appendix for any material that supports the main claims but does not
+fit cleanly into the seven-page class report body. Good candidates include
+extra ablation plots, confusion analyses, exact hyperparameter grids, full
+reproduction commands, and additional tables for multi-user or cross-session
+experiments.
 
 \newpage
 \section*{NeurIPS Paper Checklist}

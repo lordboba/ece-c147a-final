@@ -3,6 +3,10 @@ to_tensor:
   _target_: emg2qwerty.transforms.ToTensor
   fields: [emg_left, emg_right]
 
+channel_subset:
+  _target_: emg2qwerty.transforms.ChannelSubset
+  channel_indices: null
+
 band_rotation:
   _target_: emg2qwerty.transforms.ForEach  # i.i.d rotation offset for each band
   transform:
@@ -13,10 +17,15 @@ temporal_jitter:
   _target_: emg2qwerty.transforms.TemporalAlignmentJitter
   max_offset: 120  # Max 60ms jitter for 2kHz EMG
 
+resample:
+  _target_: emg2qwerty.transforms.Resample
+  orig_freq: 2000
+  new_freq: 1000
+
 logspec:
   _target_: emg2qwerty.transforms.LogSpectrogram
   n_fft: 64
-  hop_length: 16  # Downsamples from 2kHz to 125Hz
+  hop_length: 8  # Adjusted for 1000Hz to maintain 125Hz output (1000 / 8 = 125)
 
 specaug:
   _target_: emg2qwerty.transforms.SpecAugment
@@ -28,13 +37,17 @@ specaug:
 transforms:
   train:
     - ${to_tensor}
+    - ${resample}
     - ${band_rotation}
     - ${temporal_jitter}
+    - ${channel_subset}
     - ${logspec}
     - ${specaug}
 
   val:
     - ${to_tensor}
+    - ${resample}
+    - ${channel_subset}
     - ${logspec}
 
   test: ${transforms.val}

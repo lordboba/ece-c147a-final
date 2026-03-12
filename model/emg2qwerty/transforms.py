@@ -41,6 +41,48 @@ class ToTensor:
             [torch.as_tensor(data[f]) for f in self.fields], dim=self.stack_dim
         )
 
+@dataclass
+class ChannelSubset:
+    """Selects a subset of electrode channels from each band.
+
+    Assumes the input is shaped (T, bands, channels, ...). If
+    ``channel_indices`` is ``None``, the input is returned unchanged.
+
+    Args:
+        channel_indices (list | None): Electrode indices to retain per band.
+        band_dim (int): Dimension corresponding to bands. (default: 1)
+        channel_dim (int): Dimension corresponding to channels. (default: 2)
+    """
+
+    channel_indices: Sequence[int] | None = None
+    band_dim: int = 1
+    channel_dim: int = 2
+
+    def __post_init__(self) -> None:
+        if self.channel_indices is None:
+            return
+
+        if len(self.channel_indices) != len(set(self.channel_indices)):
+            raise ValueError("channel_indices must be unique")
+        if any(index < 0 for index in self.channel_indices):
+            raise ValueError("channel_indices must be non-negative")
+
+    def __call__(self, tensor: torch.Tensor) -> torch.Tensor:
+        if self.channel_indices is None:
+            return tensor
+
+        channel_count = tensor.shape[self.channel_dim]
+        if any(index >= channel_count for index in self.channel_indices):
+            raise ValueError(
+                f"channel_indices must be < input channel count ({channel_count})"
+            )
+
+        index_tensor = torch.as_tensor(
+            self.channel_indices,
+            device=tensor.device,
+        )
+        return tensor.index_select(self.channel_dim, index_tensor)
+
 
 @dataclass
 class Lambda:
@@ -243,3 +285,29 @@ class SpecAugment:
 
         # (..., C, freq, T) -> (T, ..., C, freq)
         return x.movedim(-1, 0)
+
+@dataclass
+class Resample:
+    """Resamples the input tensor from ``orig_freq`` to ``new_freq``.
+    The input must be of shape (T, ...).
+
+    Args:
+        orig_freq (int): The original frequency of the signal.
+        new_freq (int): The desired frequency of the signal.
+    """
+
+    orig_freq: int
+    new_freq: int
+
+    def __post_init__(self) -> None:
+        self.resampler = torchaudio.transforms.Resample(
+            orig_freq=self.orig_freq, new_freq=self.new_freq
+        )
+
+    def __call__(self, tensor: torch.Tensor) -> torch.Tensor:
+        # (T, ...) -> (..., T)
+        x = tensor.movedim(0, -1)
+        # Resample expects (..., T)
+        resampled = self.resampler(x)
+        # (..., T_new) -> (T_new, ...)
+        return resampled.movedim(-1, 0)

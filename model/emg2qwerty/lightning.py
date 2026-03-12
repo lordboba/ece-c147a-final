@@ -8,6 +8,15 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, ClassVar
 
+def _infer_electrode_channels(
+    channel_indices: Sequence[int] | None,
+    default_channels: int,
+) -> int:
+    return default_channels if channel_indices is None else len(channel_indices)
+
+def _spectrogram_in_features(n_fft: int, electrode_channels: int) -> int:
+    return (n_fft // 2 + 1) * electrode_channels
+
 import numpy as np
 import pytorch_lightning as pl
 import torch
@@ -145,28 +154,37 @@ class WindowedEMGDataModule(pl.LightningDataModule):
 
 class TDSConvCTCModule(pl.LightningModule):
     NUM_BANDS: ClassVar[int] = 2
-    ELECTRODE_CHANNELS: ClassVar[int] = 16
+    DEFAULT_ELECTRODE_CHANNELS: ClassVar[int] = 16
 
     def __init__(
         self,
-        in_features: int,
         mlp_features: Sequence[int],
         block_channels: Sequence[int],
         kernel_width: int,
         optimizer: DictConfig,
         lr_scheduler: DictConfig,
         decoder: DictConfig,
+        n_fft: int = 64,
+        channel_indices: Sequence[int] | None = None,
+        in_features: int | None = None,
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
 
+        electrode_channels = _infer_electrode_channels(
+            channel_indices=channel_indices,
+            default_channels=self.DEFAULT_ELECTRODE_CHANNELS,
+        )
+        in_features = in_features or _spectrogram_in_features(
+            n_fft=n_fft,
+            electrode_channels=electrode_channels,
+        )
         num_features = self.NUM_BANDS * mlp_features[-1]
 
         # Model
-        # inputs: (T, N, bands=2, electrode_channels=16, freq)
+        # inputs: (T, N, bands=2, electrode_channels, freq)
         self.model = nn.Sequential(
-            # (T, N, bands=2, C=16, freq)
-            SpectrogramNorm(channels=self.NUM_BANDS * self.ELECTRODE_CHANNELS),
+            SpectrogramNorm(channels=self.NUM_BANDS * electrode_channels),
             # (T, N, bands=2, mlp_features[-1])
             MultiBandRotationInvariantMLP(
                 in_features=in_features,
@@ -279,11 +297,10 @@ class TDSConvCTCModule(pl.LightningModule):
 # Similar to TDS w RNN/GRU swapped in
 class RNNCTCModule(pl.LightningModule):
     NUM_BANDS: ClassVar[int] = 2
-    ELECTRODE_CHANNELS: ClassVar[int] = 16
+    DEFAULT_ELECTRODE_CHANNELS: ClassVar[int] = 16
 
     def __init__(
         self,
-        in_features: int,
         mlp_features: Sequence[int],
         hidden_size: int,
         num_layers: int,
@@ -292,14 +309,25 @@ class RNNCTCModule(pl.LightningModule):
         optimizer: DictConfig,
         lr_scheduler: DictConfig,
         decoder: DictConfig,
+        n_fft: int = 64,
+        channel_indices: Sequence[int] | None = None,
+        in_features: int | None = None,
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
 
+        electrode_channels = _infer_electrode_channels(
+            channel_indices=channel_indices,
+            default_channels=self.DEFAULT_ELECTRODE_CHANNELS,
+        )
+        in_features = in_features or _spectrogram_in_features(
+            n_fft=n_fft,
+            electrode_channels=electrode_channels,
+        )
         num_features = self.NUM_BANDS * mlp_features[-1]
 
         self.model = nn.Sequential(
-            SpectrogramNorm(channels=self.NUM_BANDS * self.ELECTRODE_CHANNELS),
+            SpectrogramNorm(channels=self.NUM_BANDS * electrode_channels),
             MultiBandRotationInvariantMLP(
                 in_features=in_features,
                 mlp_features=mlp_features,

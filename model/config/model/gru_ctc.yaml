@@ -7,6 +7,8 @@ module:
   num_layers: 2
   dropout: 0.0
   bidirectional: true
+  n_fft: ${logspec.n_fft}
+  channel_indices: ${channel_subset.channel_indices}
   optimizer:
     _target_: torch.optim.Adam
     lr: 0.0003
