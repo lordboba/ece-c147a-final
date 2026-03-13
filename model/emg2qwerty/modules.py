@@ -280,6 +280,32 @@ class TDSConvEncoder(nn.Module):
         return self.tds_conv_blocks(inputs)  # (T, N, num_features)
 
 # Our contribution
+class RNNEncoder(nn.Module):
+    def __init__(
+        self,
+        num_features: int,
+        hidden_size: int = 256,
+        num_layers: int = 2,
+        dropout: float = 0.0,
+        bidirectional: bool = True,
+    ) -> None:
+        super().__init__()
+        self.rnn = nn.RNN(
+            input_size=num_features,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            dropout=dropout,
+            bidirectional=bidirectional,
+            batch_first=False,
+        )
+        out_size = hidden_size * 2 if bidirectional else hidden_size
+        self.projection = nn.Linear(out_size, num_features)
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        with torch.backends.cudnn.flags(enabled=False):
+            x, _ = self.rnn(inputs.contiguous())
+        return self.projection(x)
+
 class GRUEncoder(nn.Module):
     def __init__(
         self,
@@ -300,6 +326,7 @@ class GRUEncoder(nn.Module):
         )
         # Project back to num_features to keep the same output shape
         # as TDSConvEncoder (bidirectional doubles the hidden size)
+
         out_size = hidden_size * 2 if bidirectional else hidden_size
         self.projection = nn.Linear(out_size, num_features)
 
