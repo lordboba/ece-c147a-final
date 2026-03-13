@@ -151,6 +151,80 @@ produce framewise character logits for greedy CTC decoding. This shared output
 structure lets us compare the effect of encoder choice without changing the
 loss, decoder, or evaluation metric between runs.
 
+\subsection{Vanilla RNN}
+
+We first picked an RNN with no modifications to fit the data.
+An RNN is a neural network with the ability to retain information in the short-term
+from past data using a feedback loop.
+Because of this, we believed that this model has potential to fit sEMG data well,
+given that sEMG data has a time dimension.
+Being the most simple form of RNN, we also used this model as a starting point for
+further improvements we anticipate needing.
+These improvements include something to address the fact that RNNs often struggle
+with vanishing gradients.
+Gradients sometimes vanish, or become too small and therefore negligible, when being
+passed through too many layers.
+If the input data is long enough (temporally), this could be an issue, as the RNN
+would slowly lose earlier data.
+We used a bidirectional RNN to allow the model to have a memory of both past and future data. 
+We also used dropout to prevent overfitting. 
+It was after inadequate empirical performance that we considered a more advanced RNN model.
+
+\subsection{RNN with GRU}
+
+After the disappointing performance of RNN, we investigated using an RNN with
+Gated Recurrent Units (GRU).
+We chose GRU over LSTM due to GRU requiring less parameters, with us moving on to
+LSTM in case GRU still did not perform adequately.
+In theory, RNN with GRU will have better performance than a vanilla RNN due to the
+long length of the sEMG data.
+We suspect part of the performance issues with a vanilla RNN is from vanishing
+gradients, an issue GRU does not suffer from as much.
+
+\subsection{Hybrid TDS with GRU}
+
+To begin, we noticed that the baseline model performed decently.
+However, it was hampered by its inability to process temporal information, the way an RNN can.
+From here, we thought of combining the base TDS model with the best RNN model we had
+at the time, which was an RNN with GRU.
+We started with the baseline parameters for the TDS, and the best parameters for GRU.
+This included the parameters for dropout (0.1) and bidirectional flow (True).
+
+Performance was initially not great, capping at around 28 CER.
+We noticed that we only used one layer in our MLP.
+We can greatly improve our performance if we add another layer, since this would allow
+for the classification of nonlinear data.
+Therefore, we added a second layer, initially with the same size as the first layer.
+In addition, we also increased the size of the hidden layer of the GRU.
+
+\subsection{Data Augmentation}
+
+The baseline model already makes use of some data augmentation.
+These include Temporal Alignment Jitter, Random Band Rotation, and SpecAugment.
+All of these techniques introduce noise into the sEMG data, which helps with generalization.
+Quick ablation testing using the baseline model shows that these techniques do indeed
+help with accuracy.
+For all of our trials, we keep these baseline techniques.
+
+New techniques that build off from the baseline include resampling the data at a lower
+frequency than the baseline 2000Hz and deactivating some of the channels.
+We considered resampling the data because this approach would have a smoothing effect
+across the sEMG data.
+In theory, resampling at a lower frequency would remove many of the outliers present
+in sEMG data, potentially improving model performance.
+
+ *WIP on channel selection, maybe akash does this would be nice*
+
+We also considered disabling a subset of the training data, but theorized that this
+would not improve training.
+We were not training on much data to begin with.
+Our models typically struggled with overfitting the training data, and in this situation,
+we should look towards strategies to either find more data or generalize instead of
+removing data.
+Empirically, this resulted in similar results but multiple times more epochs to train
+compared to the base case.
+We did not try this technique again.
+
 \subsection{Training protocol and hyperparameters}
 
 Across experiments, we keep the data pipeline fixed and vary only the encoder
