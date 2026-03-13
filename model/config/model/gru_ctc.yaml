@@ -2,7 +2,7 @@
 module:
   _target_: emg2qwerty.lightning.GRUCTCModule
   in_features: 528
-  mlp_features: [256]
+  mlp_features: [256,256]
   hidden_size: 128
   num_layers: 4
   dropout: 0.1
