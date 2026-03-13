@@ -279,27 +279,30 @@ with one or two ablations such as hyperparameter sensitivity, reduced-data
 training, or alternative preprocessing.
 
 \begin{table}[t]
-  \caption{Sample architecture comparison with placeholder metrics}
+  \caption{Architecture comparison with validation and test metrics}
   \label{tab:architecture-results}
   \centering
-  \begin{tabular}{lccccc}
+  \scriptsize
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lcccccccccc}
     \toprule
-    Model & Val CER $\downarrow$ & Test CER $\downarrow$ & Test IER & Test DER & Test SER \\
+    Model & Val loss $\downarrow$ & Val CER $\downarrow$ & Val DER & Val IER & Val SER & Test loss $\downarrow$ & Test CER $\downarrow$ & Test DER & Test IER & Test SER \\
     \midrule
-    RNN & 19.8 & 27.4 & 3.1 & 4.2 & 20.1 \\
-    LSTM & 18.3 & 25.6 & 2.9 & 3.7 & 19.0 \\
-    GRU & 17.6 & 24.9 & 2.7 & 3.5 & 18.8 \\
-    TDS baseline & 21.5 & 29.3 & 3.8 & 4.6 & 20.9 \\
+    RNN & ? & ? & ? & ? & ? & ? & ? & ? & ? & ? \\
+    GRU & 0.626 & 19.67 & 2.99 & 4.36 & 12.32 & 0.625 & 20.60 & 3.24 & 2.46 & 14.89 \\
+    Hybrid CNN+RNN & 0.531 & 16.22 & 1.68 & 3.17 & 11.36 & 0.511 & 16.90 & 1.73 & 2.49 & 12.69 \\
+    TDS baseline & 0.757 & 23.17 & 2.02 & 7.53 & 13.6 & 0.798 & 24.34 & 1.84 & 6.09 & 16.40 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}%
+  }
 \end{table}
 
-Table~\ref{tab:architecture-results} is currently populated with dummy values
-so the paper has a realistic layout during drafting. In the final version,
-replace these numbers with actual metrics from the training logs and state which
-model achieved the best validation CER and which model achieved the best held
-out test CER. If a model performs inconsistently across validation and test,
-discuss that explicitly rather than hiding it.
+Table~\ref{tab:architecture-results} now mixes measured values from the current
+training logs with `?` placeholders where the corresponding metric was not yet
+recorded in the draft. In the final version, replace the remaining placeholders
+and state which model achieved the best validation CER and which model achieved
+the best held out test CER. If a model performs inconsistently across
+validation and test, discuss that explicitly rather than hiding it.
 
 \begin{table}[t]
   \caption{Sample run summary with loss, CER, and compute placeholders}
@@ -385,8 +388,8 @@ scale of the task.
 
 \subsection{Limitations}
 
-This project currently focuses on a single user because the baseline assignment
-explicitly allows full credit on that setting. However, that choice limits how
+This project currently focuses on a single user because of the compute required to 
+train a model on the full dataset. However, that choice limits how
 strongly the results can generalize across users, sessions, and hardware
 conditions. The final discussion should also note any limits from compute
 budget, the number of random seeds used, and the extent of hyperparameter
