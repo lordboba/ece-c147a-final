@@ -40,53 +40,56 @@
 \maketitle
 
 \begin{abstract}
-This report template is prepared for the ECE C147/C247 final project on the
+This report is prepared for the ECE C147/C247 final project on the
 emg2qwerty dataset. Our project studies how recurrent sequence models decode
 typed characters from wrist electromyography (EMG) signals, with a primary
-focus on comparing vanilla RNN, LSTM, and GRU architectures under the provided
-single-user split for subject 89335547. The scaffold below is intentionally
-structured to match the required class write-up sections while leaving clear
-placeholders for final results, analysis, and reproducibility details. Dummy
-values are included in the main result tables so the report can be compiled and
-iterated on before all experiments are complete.
+focus on comparing vanilla RNN, LSTM, and GRU architectures under the subject 89335547.
+
 \end{abstract}
 
 \section{Introduction}
 
-The ECE C147/C247 final project emphasizes exploration beyond standard CNN
-pipelines, making the emg2qwerty dataset a natural testbed for sequential
-models. In this project, the core goal is to predict QWERTY keystrokes from
-surface electromyography signals recorded from both wrists. Because the input is
-continuous temporal data and the output is an unsegmented character sequence,
-the task is well suited to recurrent architectures trained with the
-connectionist temporal classification (CTC) loss [1].
+The central goal of this project is to identify and train a model that achieves
+lower loss and better character error rate (CER) than the base TDS model under
+the final project guidelines. Because of limited computing resources, all of
+our experiments were conducted on a single subject, user 89335547. We also kept
+our models relatively small, targeting fewer than 5 million parameters, both to
+reduce the risk of overtraining on a limited dataset and to allow faster
+iteration within the project timeline.
 
-Rather than re-introducing the general EMG decoding problem, this report should
-motivate the specific experimental question being studied. One suitable framing
-for this project is: \emph{which recurrent architecture and training setup
-achieve the lowest character error rate on the provided single-user split?}
-Another angle is to ask how much performance changes with hidden size, depth,
-dropout, training duration, or available training data. The course rubric
-rewards not only performance, but also creativity and insight, so the final
-draft should explain why a design choice helps or hurts decoding quality rather
-than only listing metric values.
+This setting naturally motivated us to explore recurrent architectures. The
+emg2qwerty task maps continuous wrist sEMG signals to an unsegmented character
+sequence, so the temporal structure of the signal is central to successful
+decoding. In contrast to the baseline TDS model, which is primarily
+convolutional, recurrent neural networks (RNNs) offer a direct mechanism for
+processing information over time. We therefore focused first on a vanilla RNN
+as a lightweight temporal baseline, then considered gated recurrent variants
+such as gated recurrent units (GRUs) and long short-term memory (LSTM) networks
+to improve optimization and temporal credit assignment on limited data. We also
+considered a hybrid CNN+RNN architecture as a way to combine spatial feature
+extraction with temporal modeling if purely recurrent models proved
+insufficient.
 
-The remainder of this scaffold is organized around the required course sections:
-\textbf{Methods}, \textbf{Results}, and \textbf{Discussion}. It also includes
-placeholder tables for architecture comparisons, hyperparameter sweeps,
-official and future data splits, and compute reporting so the final paper can
-be updated quickly as experiments finish.
+In addition to architecture choice, we considered data augmentation and input
+reduction strategies to improve generalization without substantially increasing
+model size. In particular, we explored whether reducing signal detail through
+lower-frequency resampling or restricting the model to subsets of available
+channels could encourage the models to rely on more robust patterns rather than
+subject-specific noise. Together, these design choices frame the main question
+of this report: which compact recurrent or hybrid architecture most effectively
+improves decoding quality over the base TDS model on the provided single-user
+split?
 
 \section{Methods}
 
 \subsection{Dataset and evaluation setup}
 
 This project uses the emg2qwerty dataset released by Meta Reality Labs [2]. For
-the baseline course setting, we use the
-provided single-subject split for user 89335547. The codebase already defines a
-train/validation/test split in \texttt{single\_user.yaml}; the final report should
-state that these official sessions were used for the main comparison so results
-across architectures are directly comparable.
+the main comparison, we follow the official single-user split provided by the
+course codebase for user 89335547. All four model families are trained and
+evaluated on the same 16/1/1 train/validation/test session split so that
+differences in performance can be attributed primarily to encoder design rather
+than to changes in data availability or subject identity.
 
 \begin{table}[t]
   \caption{Official single-user split used for the main experiments}
@@ -103,75 +106,94 @@ across architectures are directly comparable.
   \end{tabular}
 \end{table}
 
-The main evaluation metric is character error rate (CER), which is the primary
-metric specified in the project instructions. It is also useful to report the
-deletion, insertion, and substitution components separately, since those often
-reveal different failure modes. If training logs already contain CTC loss, CER,
-IER, DER, and SER, the final paper should report those values consistently
-across validation and test splits.
+We evaluate all models primarily with character error rate (CER), which is the
+main metric emphasized in the project handout and is well matched to the CTC
+decoding objective. We also track insertion, deletion, and substitution error
+rates to better diagnose failure modes, since different architectures may
+over-predict characters, miss characters entirely, or confuse similar temporal
+patterns in different ways. Validation CER is used for model selection, while
+the final held-out test session is reserved for the architecture comparison
+reported in the Results section.
 
 \subsection{Model families}
 
-Our current study compares several recurrent architectures that operate on
-windowed EMG features and decode character sequences with CTC. The minimum
-course expectation is to evaluate at least one recurrent model, but this report
-is prepared for a broader architecture study including vanilla RNNs, LSTMs, and
-GRUs. If time permits, the same structure can also include a baseline TDS model,
-a CNN+RNN hybrid, or a transformer-style model for additional comparison.
+Our architecture study compares four encoder families that share the same
+windowed EMG front end and CTC decoding pipeline. The provided TDSConv model
+serves as the course baseline and offers a strong convolutional reference point
+for the task. We then compare three alternatives developed around explicit
+temporal recurrence: a vanilla bidirectional RNN as the simplest recurrent
+baseline, a deeper bidirectional GRU to test whether gating improves stability
+and sequence modeling, and a hybrid CNN+RNN model that applies TDS-style
+convolutional blocks before a recurrent encoder. This comparison is designed to
+test whether temporal recurrence alone is sufficient to outperform the baseline
+or whether a mixed convolutional-recurrent encoder yields a better trade-off on
+the limited single-user setting.
 
 \begin{table}[t]
-  \caption{Architecture configurations to compare}
+  \caption{Model families used in the architecture comparison}
   \label{tab:architecture-config}
   \centering
-  \begin{tabular}{lllll}
+  \scriptsize
+  \begin{tabular}{p{0.20\linewidth}p{0.38\linewidth}p{0.16\linewidth}p{0.10\linewidth}}
     \toprule
-    Model & Layers & Hidden size & Dropout & Decoder \\
+    Model & Encoder configuration & MLP features & Dropout \\
     \midrule
-    RNN & 3 & 256 & 0.10 & CTC greedy \\
-    LSTM & 3 & 256 & 0.10 & CTC greedy \\
-    GRU & 4 & 256 & 0.10 & CTC greedy \\
-    TDS baseline & -- & -- & -- & CTC greedy \\
+    TDS baseline & 4 TDS convolution blocks, kernel width 32 & [384] & -- \\
+    RNN & 2-layer bidirectional RNN, hidden size 256 & [256] & 0.0 \\
+    GRU & 4-layer bidirectional GRU, hidden size 128 & [256, 256] & 0.1 \\
+    Hybrid CNN+RNN & 4 TDS blocks + 4-layer bidirectional GRU, hidden size 192 & [192, 192] & 0.1 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The final draft should briefly explain each model family, but only to the
-extent needed to justify the comparison. For example, one paragraph can note
-that vanilla RNNs provide a lightweight recurrent baseline, LSTMs explicitly
-model long-term memory through gating, and GRUs offer a simplified gating
-mechanism that may yield a better trade-off between optimization stability and
-compute cost.
+All four models operate on the same log-spectrogram EMG representation and
+produce framewise character logits for greedy CTC decoding. This shared output
+structure lets us compare the effect of encoder choice without changing the
+loss, decoder, or evaluation metric between runs.
 
 \subsection{Training protocol and hyperparameters}
 
-To make the report reproducible, list the optimizer, learning rate schedule,
-batch size, number of epochs, compute device, and any feature preprocessing
-choices. The scaffold below gives a compact place to summarize runs. Replace the
-dummy values with the exact settings used in the best and comparison models.
+Across experiments, we keep the data pipeline fixed and vary only the encoder
+family and its associated hyperparameters. Input windows have length 8000 with
+left-context/right-context padding of 1800 and 200 samples, respectively. Raw
+left and right EMG streams are converted to tensors and transformed into
+log-spectrogram features using $n\_fft=64$ and hop length 16. During training,
+we apply the augmentations defined in the codebase, including random band
+rotation, temporal alignment jitter, and SpecAugment. Validation and test runs
+use the deterministic evaluation pipeline without these stochastic
+augmentations.
+
+Optimization follows the PyTorch Lightning and Hydra configuration scaffold
+used throughout the repository. Unless otherwise noted, runs use batch size 32,
+four dataloader workers, Adam optimization, and checkpoint selection based on
+validation CER. Each model uses the CTC greedy decoder for evaluation, which
+keeps decoding consistent across the convolutional, recurrent, and hybrid
+architectures. Exact CER and loss values are deferred to the Results section,
+but the main training settings for the compared models are summarized in
+Table~\ref{tab:hyperparameters}.
 
 \begin{table}[t]
-  \caption{Sample hyperparameter log for recurrent model experiments}
+  \caption{Training configurations for the compared model families}
   \label{tab:hyperparameters}
   \centering
-  \small
-  \begin{tabular}{lccccc p{0.22\linewidth}}
+  \scriptsize
+  \begin{tabular}{p{0.17\linewidth}ccccp{0.23\linewidth}}
     \toprule
-    Run ID & Model & LR & Batch size & Epochs & Hidden size & Notes \\
+    Model & LR & Batch size & Epoch budget & Scheduler & Notes \\
     \midrule
-    A1 & RNN & 3e-4 & 32 & 40 & 256 & Baseline recurrent run \\
-    A2 & LSTM & 3e-4 & 32 & 40 & 256 & Same setup as A1 \\
-    A3 & GRU & 3e-4 & 32 & 40 & 256 & Best gating-based variant \\
-    A4 & GRU & 1e-4 & 32 & 40 & 384 & Larger hidden state sweep \\
-    A5 & GRU & 3e-4 & 16 & 60 & 256 & Longer training with smaller batch \\
+    TDS baseline & 1e-3 & 32 & 40 & Warmup + cosine & Original course baseline \\
+    RNN & 3e-4 & 32 & 40 & Cosine annealing & 2-layer bidirectional recurrent encoder \\
+    GRU & 1e-4 & 32 & 40 & Cosine annealing & 4-layer gated recurrent encoder \\
+    Hybrid CNN+RNN & 3e-4 & 32 & 40 & Cosine annealing & TDS front end + bidirectional GRU encoder \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-If you investigate preprocessing or data-modification strategies, add a short
-subsection here describing exactly what changed. Examples include channel
-selection, alternative normalization, reduced training fractions, or modified
-sampling rates. Keep the text focused on what was changed and why that change
-could plausibly affect CER.
+In addition to the main architecture comparison, the repository also supports
+exploratory changes such as reduced channel subsets and related preprocessing
+variations. Those experiments are treated as secondary analyses rather than the
+core comparison in this report, so we describe them separately in the Results
+section only when they contribute directly to the final model discussion.
 
 \section{Results}
 
