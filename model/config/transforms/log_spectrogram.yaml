@@ -40,14 +40,14 @@ transforms:
     - ${resample}
     - ${band_rotation}
     - ${temporal_jitter}
-    - ${channel_subset}
+ #   - ${channel_subset}
     - ${logspec}
     - ${specaug}
 
   val:
     - ${to_tensor}
     - ${resample}
-    - ${channel_subset}
+  #  - ${channel_subset}
     - ${logspec}
 
   test: ${transforms.val}

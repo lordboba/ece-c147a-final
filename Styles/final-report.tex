@@ -187,16 +187,13 @@ gradients, an issue GRU does not suffer from as much.
 To begin, we noticed that the baseline model performed decently.
 However, it was hampered by its inability to process temporal information, the way an RNN can.
 From here, we thought of combining the base TDS model with the best RNN model we had
-at the time, which was an RNN with GRU.
+at the time, which was an RNN with GRU. The idea here is that the initial convolutional layer could extract
+spacial features from the sEMG data, while the recurrent layer could process temporal relationships between said spacial featuers.
+
 We started with the baseline parameters for the TDS, and the best parameters for GRU.
 This included the parameters for dropout (0.1) and bidirectional flow (True).
 
-Performance was initially not great, capping at around 28 CER.
-We noticed that we only used one layer in our MLP.
-We can greatly improve our performance if we add another layer, since this would allow
-for the classification of nonlinear data.
-Therefore, we added a second layer, initially with the same size as the first layer.
-In addition, we also increased the size of the hidden layer of the GRU.
+
 
 \subsection{Data Augmentation}
 
