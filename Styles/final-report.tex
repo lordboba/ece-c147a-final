@@ -411,6 +411,12 @@ scale of the task.
 
 The channel subset experiments also provide insight into how spatial information from EMG sensors affects decoding. While the model using all channels performed best, the evenly spaced subset of even-numbered channels achieved nearly identical performance despite using only half as many electrodes (17.55 CER vs.\ 16.90 CER). In contrast, subsets that concentrated sensors within a single contiguous region of the electrode array performed substantially worse, with the first-half [0–7] and second-half [8–15] configurations yielding 22.93 and 25.01 CER respectively (Table~\ref{tab:channel-subset-comparison}). Interestingly, a much smaller subset containing only four evenly spaced channels [0,4,8,12] achieved 23.71 CER, which is comparable to the performance of the larger contiguous 8-channel subsets. This suggests that neighboring electrodes may contain partially redundant information because EMG signals are spatially correlated across nearby sensors. As a result, maintaining spatial coverage across the forearm appears more important than simply increasing the number of adjacent electrodes. These results indicate that a reduced but well-distributed sensor configuration may retain most of the useful signal information while significantly lowering hardware complexity.
 
+\subsection{Future Work}
+We had set out to discover a model that could fit the given data for this subject significantly better than the baseline TDS model, and we found that in a TDS-RNN hybrid model. However, due time and budget constraints, there are some choices of models we considered but did not have the resources to test. These include RNN with LSTM, another type of RNN that can avoid vanishing gradients. LSTM is generally better than GRU at tracking long-term information, so in future projects, we can explore how LSTM compares with GRU. 
+
+In addition, we considered using a transformer. A transformer takes in the entire data at once and decides which parts are important using attention, compared to CNNs and RNNs that rely on processing the data sequentially. This fundamental difference means that a transformer’s performance could be drastically different from anything we have compared. 
+
+
 \subsection{Limitations}
 
 This project currently focuses on a single user because of the compute required to 
