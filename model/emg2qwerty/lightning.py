@@ -546,11 +546,10 @@ class GRUCTCModule(pl.LightningModule):
 
 class HybridCTCModule(pl.LightningModule):
     NUM_BANDS: ClassVar[int] = 2
-    ELECTRODE_CHANNELS: ClassVar[int] = 16
+    DEFAULT_ELECTRODE_CHANNELS: ClassVar[int] = 16
 
     def __init__(
         self,
-        in_features: int,
         mlp_features: Sequence[int],
         block_channels: Sequence[int],
         kernel_width: int,
@@ -561,14 +560,26 @@ class HybridCTCModule(pl.LightningModule):
         optimizer: DictConfig,
         lr_scheduler: DictConfig,
         decoder: DictConfig,
+        n_fft: int = 64,
+        channel_indices: Sequence[int] | None = None,
+        in_features: int | None = None,
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
 
+        electrode_channels = _infer_electrode_channels(
+            channel_indices=channel_indices,
+            default_channels=self.DEFAULT_ELECTRODE_CHANNELS,
+        )
+        in_features = in_features or _spectrogram_in_features(
+            n_fft=n_fft,
+            electrode_channels=electrode_channels,
+        )
+
         num_features = self.NUM_BANDS * mlp_features[-1]
 
         self.model = nn.Sequential(
-            SpectrogramNorm(channels=self.NUM_BANDS * self.ELECTRODE_CHANNELS),
+            SpectrogramNorm(channels=self.NUM_BANDS * electrode_channels),
         
             MultiBandRotationInvariantMLP(
                 in_features=in_features,
