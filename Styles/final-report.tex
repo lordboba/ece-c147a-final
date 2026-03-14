@@ -16,6 +16,16 @@
 \usepackage{graphicx}
 \usepackage{longtable}
 
+% Conservative space-saving adjustments for the course page limit.
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{0pt}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.95}
+
 \title{Exploring Recurrent Architectures for EMG-to-QWERTY Decoding}
 
 \author{%
@@ -142,7 +152,6 @@ the limited single-user setting.
 	\caption{Model families used in the architecture comparison}
 	\label{tab:architecture-config}
 	\centering
-	\scriptsize
 	\begin{tabular}{p{0.20\linewidth}p{0.38\linewidth}p{0.16\linewidth}p{0.10\linewidth}}
 		\toprule
 		Model          & Encoder configuration                                     & MLP features & Dropout \\
@@ -265,7 +274,6 @@ Table~\ref{tab:hyperparameters}.
 	\caption{Training configurations for the compared model families}
 	\label{tab:hyperparameters}
 	\centering
-	\scriptsize
 	\begin{tabular}{p{0.17\linewidth}ccccp{0.23\linewidth}}
 		\toprule
 		Model          & LR   & Batch size & Epoch budget & Scheduler        & Notes                                     \\
@@ -296,19 +304,17 @@ CNN+GRU, and TDS baseline all reached stable performance within the 40-epoch bud
 	\caption{Architecture comparison with validation and test metrics}
 	\label{tab:architecture-results}
 	\centering
-	\scriptsize
-	\resizebox{\linewidth}{!}{%
-		\begin{tabular}{lccccccccccc}
+	\setlength{\tabcolsep}{2pt}
+	\begin{tabular}{@{}lccccccccccc@{}}
 			\toprule
-			Model          & Epochs & Val loss $\downarrow$ & Val CER $\downarrow$ & Val DER & Val IER & Val SER & Test loss $\downarrow$ & Test CER $\downarrow$ & Test DER & Test IER & Test SER \\
+			Model          & Epochs & \shortstack{Val\\loss} & \shortstack{Val\\CER} & \shortstack{Val\\DER} & \shortstack{Val\\IER} & \shortstack{Val\\SER} & \shortstack{Test\\loss} & \shortstack{Test\\CER} & \shortstack{Test\\DER} & \shortstack{Test\\IER} & \shortstack{Test\\SER} \\
 			\midrule
 			RNN            & 100    & 1.463                 & 48.892               & 11.099  & 15.175  & 22.619  & 1.191                  & 39.83                 & 1.794    & 18.695   & 19.34    \\
 			GRU            & 40     & 0.626                 & 19.67                & 2.99    & 4.36    & 12.32   & 0.625                  & 20.60                 & 3.24     & 2.46     & 14.89    \\
 			Hybrid CNN+GRU & 40     & 0.531                 & 16.22                & 1.68    & 3.17    & 11.36   & 0.511                  & 16.90                 & 1.73     & 2.49     & 12.69    \\
 			TDS baseline   & 40     & 0.757                 & 23.17                & 2.02    & 7.53    & 13.6    & 0.798                  & 24.34                 & 1.84     & 6.09     & 16.40    \\
 			\bottomrule
-		\end{tabular}%
-	}
+	\end{tabular}
 \end{table}
 
 \subsection{Channel Subset Study}
@@ -346,7 +352,7 @@ electrodes, again despite using only half as many electrodes.
 
 We now discuss the performance of our different models and the results of our experiments.
 
-\subsection{GRU vs.\ Vanilla RNN}
+\paragraph{GRU vs.\ Vanilla RNN.}
 
 Vanilla recurrent neural networks struggled to achieve competitive performance on the EMG-to-QWERTY task. One likely reason is the well-known vanishing gradient problem in simple RNN architectures. EMG typing sequences are relatively long, and the model must preserve information across many time steps in order to correctly associate patterns of muscle activation with individual characters. In a vanilla RNN, gradients propagated through many recurrent steps can shrink rapidly, making it difficult for the model to learn long-range temporal dependencies.
 
@@ -354,7 +360,7 @@ The GRU model significantly improved performance over the vanilla RNN\@. This is
 
 An interesting observation is that GRU's improved performance mainly stems from a much-improved insertion error rate. One possible explanation for this improvement is that the gating mechanisms in GRUs help stabilize the hidden state over time. In CTC-based sequence models, insertion errors often occur when the model produces spurious character predictions across consecutive frames. EMG signals can contain short-lived fluctuations due to noise or minor muscle activations, which a simple RNN may interpret as new characters. The update and reset gates in GRUs allow the model to retain relevant temporal context while filtering out transient variations in the signal. As a result, the GRU model is less likely to generate unnecessary character predictions, which can lead to a reduction in insertion errors.
 
-\subsection{Benefits of Combining Convolution and Recurrence}
+\paragraph{Benefits of Combining Convolution and Recurrence.}
 
 While the GRU model improved performance relative to the vanilla RNN, the hybrid CNN+GRU architecture achieved the best results overall. This aligns with related findings that CNN+GRU hybrids can benefit from combining convolutional feature extraction with recurrent sequence modeling~[6]. One possible explanation is that convolutional layers are well suited for extracting local structure from EMG signals before temporal modeling is applied. EMG data contains localized patterns in both time and frequency that correspond to muscle activations associated with specific finger movements. The TDS convolutional blocks can learn filters that detect these local activation patterns and produce a higher-level representation of the signal.
 
@@ -362,7 +368,7 @@ Once these local features are extracted, the recurrent GRU layers can focus on m
 
 The hybrid architecture therefore benefits from combining the strengths of both approaches. Convolutional layers efficiently capture local spatial and spectral structure in the EMG signals, while recurrent layers model the longer temporal dependencies associated with typing sequences. This combination likely explains why the hybrid model achieved the lowest character error rate among the tested architectures.
 
-\subsection{Sensor Redundancy and Channel Efficiency}
+\paragraph{Sensor Redundancy and Channel Efficiency.}
 
 The channel subset experiments also provide insight into how spatial information from EMG sensors affects decoding. While the model using all channels performed best, the evenly spaced subset of even-numbered channels achieved nearly identical performance despite using only half as many electrodes (17.55 CER vs.\ 16.90 CER). In contrast, subsets that concentrated sensors within a single contiguous region of the electrode array performed substantially worse, with the first-half [0--7] and second-half [8--15] configurations yielding 22.93 and 25.01 CER respectively (Table~\ref{tab:channel-subset-comparison}). Interestingly, a much smaller subset containing only four evenly spaced channels [0,4,8,12] achieved 23.71 CER, which is comparable to the performance of the larger contiguous 8-channel subsets. This suggests that neighboring electrodes may contain partially redundant information because EMG signals are spatially correlated across nearby sensors. As a result, maintaining spatial coverage across the forearm appears more important than simply increasing the number of adjacent electrodes. These results indicate that a reduced but well-distributed sensor configuration may retain most of the useful signal information while significantly lowering hardware complexity.
 
@@ -374,7 +380,7 @@ In addition, we considered using a transformer. A transformer takes in the entir
 
 Finally, it can be interesting to train a hybrid model that uses an RNN without GRU\@. We can test whether or not a lack of long-term memory in the RNN can be made up for with spatial reasoning. While we do not expect the performance to exceed that of our current hybrid model, it can be interesting to compare to the baseline, given that a vanilla RNN had the worst performance (and therefore most room for improvement).
 
-\subsection{Limitations}
+\paragraph{Limitations.}
 
 This project currently focuses on a single user because of the compute required to
 train a model on the full dataset. However, that choice limits how
@@ -403,80 +409,24 @@ mean that the report should be interpreted as a focused single-user architecture
 study rather than a definitive conclusion about the best emg2qwerty model in
 general.
 
-\subsection{Reproducibility notes}
+\paragraph{Reproducibility notes.}
 
 Below are the exact training commands, environment, and
 best checkpoint settings for reproducing our results from the project
 repository~[4]. 
 
-\subsubsection{Running RNN}
-In main, run:
-\begin{verbatim}
-python -m emg2qwerty.train \
-  user=single_user \
-  model=rnn_ctc \
-  cluster=basic \
-  trainer.accelerator=gpu \
-  trainer.devices=1 \
-  trainer.max_epochs=40
-\end{verbatim}
-
-\subsubsection{Running GRU}
-In main, run:
-\begin{verbatim}
-python -m emg2qwerty.train \
-  user=single_user model=gru_ctc \
-  trainer.accelerator=gpu \
-  trainer.devices=1 \
-  trainer.max_epochs=1 \
-  trainer.max_epochs=40
-\end{verbatim}
-
-\subsubsection{Running CNN+GRU}
-In main, run:
-\begin{verbatim}
-python -m emg2qwerty.train \
-  user=single_user model=hybrid_ctc \
-  trainer.accelerator=gpu \
-  trainer.devices=1 \
-  trainer.max_epochs=1 \
-  trainer.max_epochs=40
-\end{verbatim}
-
-\subsubsection{Running Electrode Channel Selection}
-From branch hybrid-channel-selection, run the following command to train the hybrid model with a subset of electrode channels:
-\begin{verbatim}
-python -m emg2qwerty.train \
-  model=hybrid_ctc \
-  user=single_user \
-  trainer.accelerator=gpu trainer.devices=1 \
-  channel_subset.channel_indices=[0,1,2,3,4,5,6,7]
-\end{verbatim}
-
-\subsubsection{Running Resampling}
-Specify parameters in \texttt{log\_spectrogram.yaml}:
-
-\begin{verbatim}
-resample:
-  _target_: emg2qwerty.transforms.Resample
-  orig_freq: old_frequency
-  new_freq: new_frequency
-\end{verbatim}
-and then add this specifier
-\begin{verbatim}
-   ${resample}
-\end{verbatim}
-in the transforms list.
+\noindent\textbf{RNN (main):} \path{python -m emg2qwerty.train user=single_user model=rnn_ctc cluster=basic trainer.accelerator=gpu trainer.devices=1 trainer.max_epochs=40}\par
+\noindent\textbf{GRU (main):} \path{python -m emg2qwerty.train user=single_user model=gru_ctc trainer.accelerator=gpu trainer.devices=1 trainer.max_epochs=1 trainer.max_epochs=40}\par
+\noindent\textbf{CNN+GRU (main):} \path{python -m emg2qwerty.train user=single_user model=hybrid_ctc trainer.accelerator=gpu trainer.devices=1 trainer.max_epochs=1 trainer.max_epochs=40}\par
+\noindent\textbf{Channel selection (branch \texttt{hybrid-channel-selection}):} \path{python -m emg2qwerty.train model=hybrid_ctc user=single_user trainer.accelerator=gpu trainer.devices=1 channel_subset.channel_indices=[0,1,2,3,4,5,6,7]}\par
+\noindent\textbf{Resampling:} in \texttt{log\_spectrogram.yaml}, add \path{resample: {_target_: emg2qwerty.transforms.Resample, orig_freq: old_frequency, new_freq: new_frequency}} and include \texttt{\$\{resample\}} in the transforms list.
 
 \begin{table}[t]
 	\caption{Compute and reproducibility information}
 	\label{tab:compute}
 	\centering
-	\small
 	\begin{tabular}{lp{0.22\linewidth}p{0.34\linewidth}}
 		\toprule
-		Item          &                           &                                 \\
-		\midrule
 		Framework     & PyTorch Lightning         & 1.8.6                           \\
 		Main device   & $1\times$GPU              & Tesla T4, 16 GB of VRAM, NVIDIA \\
 		Training time & ${\sim}$2\,hr / 40 epochs &                                 \\
@@ -495,8 +445,6 @@ in the transforms list.
 \end{ack}
 
 \section*{References}
-
-{\small
 
 [1] Alex Graves, Santiago Fernandez, Faustino Gomez, and Jurgen Schmidhuber.
 Connectionist temporal classification: Labelling unsegmented sequence data with
@@ -521,76 +469,5 @@ Berenzweig, Anuoluwapo Bolarinwa, Alexandre Gramfort, and Michael I.\ Mandel.
 [6] Almustapha A.\ Wakili, Babajide J.\ Asaju, and Woosub Jung.
 \textit{Evaluating BiLSTM and CNN+GRU approaches for human activity recognition
 	using WiFi CSI data}, 2025. arXiv:2506.11165.
-}
-
-\clearpage
-\appendix
-
-\section{Hyperparameter tuning runs}
-
-Table~\ref{tab:appendix-hparam-sweep} lists the full hyperparameter sweep used
-for the recurrent-model tuning study. The runs are ordered by rank, and the
-reported metrics are validation CER, test CER, and validation loss.
-
-\scriptsize
-\begin{longtable}{rrrrrrrr}
-	\caption{Appendix hyperparameter tuning runs}\label{tab:appendix-hparam-sweep} \\
-	\toprule
-	Rank & Hidden & Layers & LR     & Dropout & Val CER & Test CER & Val loss      \\
-	\midrule
-	\endfirsthead
-
-	\toprule
-	Rank & Hidden & Layers & LR     & Dropout & Val CER & Test CER & Val loss      \\
-	\midrule
-	\endhead
-
-	\bottomrule
-	\endfoot
-
-	1    & 128    & 2      & 0.0001 & 0.2     & 49.60   & 42.14    & 1.4942        \\
-	2    & 128    & 2      & 0.0001 & 0.2     & 49.60   & 42.14    & 1.4942        \\
-	3    & 128    & 2      & 0.0003 & 0.2     & 49.60   & 42.14    & 1.4942        \\
-	4    & 256    & 2      & 0.0001 & 0.0     & 49.76   & 35.44    & 1.4594        \\
-	5    & 256    & 2      & 0.0003 & 0.0     & 49.76   & 35.44    & 1.4594        \\
-	6    & 256    & 4      & 0.0001 & 0.2     & 49.98   & 44.09    & 1.5561        \\
-	7    & 128    & 4      & 0.0001 & 0.2     & 50.11   & 39.31    & 1.5446        \\
-	8    & 128    & 4      & 0.0003 & 0.2     & 50.11   & 39.31    & 1.5446        \\
-	9    & 128    & 4      & 0.0003 & 0.0     & 50.18   & 39.10    & 1.4771        \\
-	10   & 128    & 4      & 0.0001 & 0.0     & 50.18   & 39.10    & 1.4771        \\
-	11   & 128    & 2      & 0.0001 & 0.3     & 50.93   & 44.85    & 1.4902        \\
-	12   & 128    & 2      & 0.0001 & 0.3     & 50.93   & 44.85    & 1.4902        \\
-	13   & 128    & 2      & 0.0003 & 0.3     & 50.93   & 44.85    & 1.4902        \\
-	14   & 256    & 2      & 0.0001 & 0.2     & 50.97   & 37.50    & 1.4991        \\
-	15   & 256    & 2      & 0.0003 & 0.2     & 50.97   & 37.50    & 1.4991        \\
-	16   & 256    & 4      & 0.0001 & 0.1     & 51.26   & 41.39    & 1.5438        \\
-	17   & 256    & 2      & 0.0001 & 0.3     & 51.48   & 38.58    & 1.5244        \\
-	18   & 256    & 2      & 0.0003 & 0.3     & 51.48   & 38.58    & 1.5244        \\
-	19   & 128    & 2      & 0.0001 & 0.1     & 51.86   & 43.31    & 1.5267        \\
-	20   & 128    & 2      & 0.0001 & 0.1     & 51.86   & 43.31    & 1.5267        \\
-	21   & 128    & 2      & 0.0003 & 0.1     & 51.86   & 43.31    & 1.5267        \\
-	22   & 128    & 2      & 0.0001 & 0.0     & 52.81   & 41.93    & 1.5367        \\
-	23   & 128    & 2      & 0.0003 & 0.0     & 52.81   & 41.93    & 1.5367        \\
-	24   & 128    & 2      & 0.0001 & 0.0     & 52.81   & 41.93    & 1.5367        \\
-	25   & 128    & 2      & 0.0003 & 0.0     & 52.81   & 41.93    & 1.5367        \\
-	26   & 256    & 4      & 0.0001 & 0.3     & 52.88   & 41.84    & 1.5574        \\
-	27   & 128    & 4      & 0.0003 & 0.1     & 53.19   & 38.97    & 1.5226        \\
-	28   & 128    & 4      & 0.0001 & 0.1     & 53.19   & 38.97    & 1.5226        \\
-	29   & 128    & 4      & 0.0001 & 0.3     & 53.46   & 40.35    & 1.5911        \\
-	30   & 128    & 4      & 0.0003 & 0.3     & 53.46   & 40.35    & 1.5911        \\
-	31   & 256    & 2      & 0.0001 & 0.1     & 53.57   & 42.17    & 1.5326        \\
-	32   & 256    & 2      & 0.0003 & 0.1     & 53.57   & 42.17    & 1.5326        \\
-	33   & 256    & 4      & 0.0001 & 0.0     & 54.63   & 44.24    & 1.6220        \\
-	34   & 256    & 4      & 0.0003 & 0.0     & 54.63   & 44.24    & 1.6220        \\
-	35   & 128    & 2      & 0.0001 & 0.1     & 65.02   & 61.47    & 2.2227        \\
-	36   & 128    & 2      & 0.0001 & 0.2     & 66.68   & 61.94    & 2.2677        \\
-	37   & 128    & 2      & 0.0001 & 0.0     & 71.02   & 63.99    & 2.4464        \\
-	38   & 128    & 2      & 0.0003 & 0.0     & 71.02   & 63.99    & 2.4464        \\
-	39   & 128    & 2      & 0.0001 & 0.3     & 71.87   & 65.33    & 2.4487        \\
-	40   & 128    & 2      & 0.0001 & 0.1     & 104.45  & 78.32    & 4.3515        \\
-	41   & 128    & 2      & 0.0001 & 0.0     & 107.73  & 79.10    & 4.5090        \\
-	42   & 128    & 2      & 0.0001 & 0.3     & 107.75  & 80.79    & 4.4906        \\
-	43   & 128    & 2      & 0.0001 & 0.2     & 108.06  & 80.79    & 4.5392        \\
-\end{longtable}
 
 \end{document}
