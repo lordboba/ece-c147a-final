@@ -41,10 +41,19 @@
 \maketitle
 
 \begin{abstract}
-	This report is prepared for the ECE C147/C247 final project on the
-	emg2qwerty dataset. Our project studies how recurrent sequence models decode
-	typed characters from wrist electromyography (EMG) signals, with a primary
-	focus on comparing vanilla RNN, LSTM, and GRU architectures under the subject 89335547.
+  The emg2qwerty dataset is a collection of surface electromyography (sEMG) data 
+  corresponding to keystrokes on a standard keyboard. In this paper, we explore 
+  using different model architectures to best fit this data. The baseline Time-Depth 
+  Separable (TDS) model, a convolutional neural network, performs adequately, but we 
+  believe performance can be improved through the use of recurrent neural networks (RNN). 
+  In all, we consider a vanilla RNN (an RNN with no additions), an RNN with Gated Recurrent 
+  Units (GRU), and a hybrid model consisting of the base TDS model that leads into an RNN with 
+  GRU. We also introduce data augmentation techniques including resampling the data at a 
+  different frequency and dropout for channels. Our results reveal that the vanilla RNN 
+  model does not outperform the baseline model, but RNN with GRU does slightly better. 
+  The hybrid model shows the best performance, combining the strengths of both the 
+  baseline model and the RNN with GRU model. We also demonstrate that the data 
+  augmentation techniques we introduce improve generalization for the models we considered.
 \end{abstract}
 
 \section{Introduction}
@@ -66,7 +75,7 @@ processing information over time. We therefore focused first on a vanilla RNN
 as a lightweight temporal baseline, then considered gated recurrent variants
 such as gated recurrent units (GRUs) and long short-term memory (LSTM) networks
 to improve optimization and temporal credit assignment on limited data. We also
-considered a hybrid CNN+RNN architecture as a way to combine spatial feature
+considered a hybrid CNN+GRU architecture as a way to combine spatial feature
 extraction with temporal modeling if purely recurrent models proved
 insufficient.
 
@@ -84,9 +93,9 @@ split?
 
 \subsection{Dataset and evaluation setup}
 
-This project uses the emg2qwerty dataset released by Meta Reality Labs~\cite{sivakumar2024emg2qwerty}. For
+This project uses the emg2qwerty dataset released by Meta Reality Labs~[2]. For
 the main comparison, we follow the official single-user split provided by the
-course codebase for user 89335547. All four model families are trained and
+course codebase repository~[4] for user 89335547. All four model families are trained and
 evaluated on the same 16/1/1 train/validation/test session split so that
 differences in performance can be attributed primarily to encoder design rather
 than to changes in data availability or subject identity.
@@ -123,7 +132,7 @@ serves as the course baseline and offers a strong convolutional reference point
 for the task. We then compare three alternatives developed around explicit
 temporal recurrence: a vanilla bidirectional RNN as the simplest recurrent
 baseline, a deeper bidirectional GRU to test whether gating improves stability
-and sequence modeling, and a hybrid CNN+RNN model that applies TDS-style
+and sequence modeling, and a hybrid CNN+GRU model that applies TDS-style
 convolutional blocks before a recurrent encoder. This comparison is designed to
 test whether temporal recurrence alone is sufficient to outperform the baseline
 or whether a mixed convolutional-recurrent encoder yields a better trade-off on
@@ -141,7 +150,7 @@ the limited single-user setting.
 		TDS baseline   & 4 TDS convolution blocks, kernel width 32                 & [384]        & --      \\
 		RNN            & 2-layer bidirectional RNN, hidden size 256                & [256]        & 0.0     \\
 		GRU            & 4-layer bidirectional GRU, hidden size 128                & [256, 256]   & 0.1     \\
-		Hybrid CNN+RNN & 4 TDS blocks + 4-layer bidirectional GRU, hidden size 192 & [192, 192]   & 0.1     \\
+		Hybrid CNN+GRU & 4 TDS blocks + 4-layer bidirectional GRU, hidden size 192 & [192, 192]   & 0.1     \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -173,7 +182,7 @@ It was after inadequate empirical performance that we considered a more advanced
 \subsection{RNN with GRU}
 
 After the disappointing performance of RNN, we investigated using an RNN with
-Gated Recurrent Units (GRU).
+Gated Recurrent Units (GRU)~[5].
 We chose GRU over LSTM due to GRU requiring less parameters, with us moving on to
 LSTM in case GRU still did not perform adequately.
 In theory, RNN with GRU will have better performance than a vanilla RNN due to the
@@ -186,8 +195,9 @@ gradients, an issue GRU does not suffer from as much.
 To begin, we noticed that the baseline model performed decently.
 However, it was hampered by its inability to process temporal information, the way an RNN can.
 From here, we thought of combining the base TDS model with the best RNN model we had
-at the time, which was an RNN with GRU\@. The idea here is that the initial convolutional layer could extract
-spacial features from the sEMG data, while the recurrent layer could process temporal relationships between said spacial featuers.
+at the time, which was an RNN with GRU\@. Similar hybrid CNN+GRU designs have also been
+reported in related sequence-modeling settings~[6]. The idea here is that the initial convolutional layer could extract
+spatial features from the sEMG data, while the recurrent layer could process temporal relationships between said spatial features.
 
 We started with the baseline parameters for the TDS, and the best parameters for GRU\@.
 This included the parameters for dropout (0.1) and bidirectional flow (True).
@@ -263,7 +273,7 @@ Table~\ref{tab:hyperparameters}.
 		TDS baseline   & 1e-3 & 32         & 40           & Warmup + cosine  & Original course baseline                  \\
 		RNN            & 3e-4 & 32         & 100          & Cosine annealing & 2-layer bidirectional recurrent encoder   \\
 		GRU            & 1e-4 & 32         & 40           & Cosine annealing & 4-layer gated recurrent encoder           \\
-		Hybrid CNN+RNN & 3e-4 & 32         & 40           & Cosine annealing & TDS front end + bidirectional GRU encoder \\
+		Hybrid CNN+GRU & 3e-4 & 32         & 40           & Cosine annealing & TDS front end + bidirectional GRU encoder \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -276,12 +286,11 @@ section only when they contribute directly to the final model discussion.
 
 \section{Results}
 
-% TODO Fill out
-
-Here is a table for our results for each architecture. Notice that RNN was run for
-100 epochs while the other architectures were run for 40 epochs. This is mainly because
-RNN took longer to converge to its final CER while the other models were sufficiently
-accurate at 40 epochs:
+Table~\ref{tab:architecture-results} summarizes the validation and test performance
+of the four model families considered in this study. For fairness, all models were
+evaluated on the same official single-user split. The vanilla RNN was trained for
+100 epochs because its validation CER improved more slowly, whereas the GRU, hybrid
+CNN+GRU, and TDS baseline all reached stable performance within the 40-epoch budget.
 
 \begin{table}[t]
 	\caption{Architecture comparison with validation and test metrics}
@@ -289,7 +298,7 @@ accurate at 40 epochs:
 	\centering
 	\scriptsize
 	\resizebox{\linewidth}{!}{%
-		\begin{tabular}{lcccccccccc}
+		\begin{tabular}{lccccccccccc}
 			\toprule
 			Model          & Epochs & Val loss $\downarrow$ & Val CER $\downarrow$ & Val DER & Val IER & Val SER & Test loss $\downarrow$ & Test CER $\downarrow$ & Test DER & Test IER & Test SER \\
 			\midrule
@@ -313,7 +322,7 @@ subset containing all even-numbered channels [0,2,4,6,8,10,12,14] performed near
 well despite using only half as many electrodes. In contrast, subsets that used only
 the first half [0--7] or the second half [8--15] of the channels performed worse.
 Additionally, the subset containing only the multiple of 4 channels [0,4,8,12] did
-about as well as the subsets using the only the first half or the second half of the
+about as well as the subsets using only the first half or the second half of the
 electrodes, again despite using only half as many electrodes.
 
 \begin{table}[t]
@@ -335,32 +344,19 @@ electrodes, again despite using only half as many electrodes.
 
 \section{Discussion}
 
-The discussion should do more than restate the lowest CER\@. This is the section
-where you explain what you learned from the comparison. Questions worth
-answering include: Did gated recurrent models outperform the vanilla RNN? Was
-the improvement large enough to justify extra compute? Were some runs more
-stable during training? Did deeper or wider models actually help, or did they
-mostly overfit the single-user split?
-
-For a strong final write-up, include at least one interpretation tied directly
-to the course rubric. For example, if the GRU achieves lower CER than the RNN,
-you might hypothesize that gating helps preserve relevant temporal context in
-the EMG sequence while avoiding some of the optimization difficulty of a plain
-recurrent model. If an LSTM does not improve over a GRU, you can discuss whether
-the added parameters and memory mechanisms were unnecessary for the observed time
-scale of the task.
+We now discuss the performance of our different models and the results of our experiments.
 
 \subsection{GRU vs.\ Vanilla RNN}
 
 Vanilla recurrent neural networks struggled to achieve competitive performance on the EMG-to-QWERTY task. One likely reason is the well-known vanishing gradient problem in simple RNN architectures. EMG typing sequences are relatively long, and the model must preserve information across many time steps in order to correctly associate patterns of muscle activation with individual characters. In a vanilla RNN, gradients propagated through many recurrent steps can shrink rapidly, making it difficult for the model to learn long-range temporal dependencies.
 
-The GRU model significantly improved performance over the vanilla RNN\@. GRUs incorporate gating mechanisms that regulate how information is updated and retained in the hidden state. In particular, the update and reset gates allow the network to preserve useful temporal context while discarding irrelevant information. This improves gradient flow during training and allows the model to capture longer temporal relationships in the EMG signal. Because typing gestures unfold over time and often involve subtle transitions between muscle activations, the ability to maintain relevant temporal information is particularly important for this task.
+The GRU model significantly improved performance over the vanilla RNN\@. This is consistent with prior empirical work showing that gated recurrent units often outperform more traditional recurrent units on sequence modeling tasks~[5]. GRUs incorporate gating mechanisms that regulate how information is updated and retained in the hidden state. In particular, the update and reset gates allow the network to preserve useful temporal context while discarding irrelevant information. This improves gradient flow during training and allows the model to capture longer temporal relationships in the EMG signal. Because typing gestures unfold over time and often involve subtle transitions between muscle activations, the ability to maintain relevant temporal information is particularly important for this task.
 
 An interesting observation is that GRU's improved performance mainly stems from a much-improved insertion error rate. One possible explanation for this improvement is that the gating mechanisms in GRUs help stabilize the hidden state over time. In CTC-based sequence models, insertion errors often occur when the model produces spurious character predictions across consecutive frames. EMG signals can contain short-lived fluctuations due to noise or minor muscle activations, which a simple RNN may interpret as new characters. The update and reset gates in GRUs allow the model to retain relevant temporal context while filtering out transient variations in the signal. As a result, the GRU model is less likely to generate unnecessary character predictions, which can lead to a reduction in insertion errors.
 
 \subsection{Benefits of Combining Convolution and Recurrence}
 
-While the GRU model improved performance relative to the vanilla RNN, the hybrid CNN+GRU architecture achieved the best results overall. One possible explanation is that convolutional layers are well suited for extracting local structure from EMG signals before temporal modeling is applied. EMG data contains localized patterns in both time and frequency that correspond to muscle activations associated with specific finger movements. The TDS convolutional blocks can learn filters that detect these local activation patterns and produce a higher-level representation of the signal.
+While the GRU model improved performance relative to the vanilla RNN, the hybrid CNN+GRU architecture achieved the best results overall. This aligns with related findings that CNN+GRU hybrids can benefit from combining convolutional feature extraction with recurrent sequence modeling~[6]. One possible explanation is that convolutional layers are well suited for extracting local structure from EMG signals before temporal modeling is applied. EMG data contains localized patterns in both time and frequency that correspond to muscle activations associated with specific finger movements. The TDS convolutional blocks can learn filters that detect these local activation patterns and produce a higher-level representation of the signal.
 
 Once these local features are extracted, the recurrent GRU layers can focus on modeling the temporal relationships between them. This division of labor allows the network to separate two difficult tasks: feature extraction and sequence modeling. In contrast, a purely recurrent model must learn both simultaneously, which may make optimization more difficult when training data is limited.
 
@@ -372,7 +368,7 @@ The channel subset experiments also provide insight into how spatial information
 
 \section{Future Work}
 
-We had set out to discover a model that could fit the given data for this subject significantly better than the baseline TDS model, and we found that in a TDS-RNN hybrid model. However, due time and budget constraints, there are some choices of models we considered but did not have the resources to test. These include RNN with LSTM, another type of RNN that can avoid vanishing gradients. LSTM is generally better than GRU at tracking long-term information, so in future projects, we can explore how LSTM compares with GRU\@.
+We had set out to discover a model that could fit the given data for this subject significantly better than the baseline TDS model, and we found that in a TDS-GRU hybrid model. However, due to time and budget constraints, there are some choices of models we considered but did not have the resources to test. These include RNN with LSTM, another type of RNN that can avoid vanishing gradients. LSTM is generally better than GRU at tracking long-term information, so in future projects, we can explore how LSTM compares with GRU\@.
 
 In addition, we considered using a transformer. A transformer takes in the entire data at once and decides which parts are important using attention, compared to CNNs and RNNs that rely on processing the data sequentially. This fundamental difference means that a transformer's performance could be drastically different from anything we have compared.
 
@@ -383,18 +379,35 @@ Finally, it can be interesting to train a hybrid model that uses an RNN without 
 This project currently focuses on a single user because of the compute required to
 train a model on the full dataset. However, that choice limits how
 strongly the results can generalize across users, sessions, and hardware
-conditions. The final discussion should also note any limits from compute
-budget, the number of random seeds used, and the extent of hyperparameter
-search. If error bars or repeated trials are not included, say so directly.
+conditions. In particular, performance differences observed on user 89335547 may
+reflect user-specific signal characteristics rather than trends that would hold
+across a broader population.
+
+A second limitation is the constrained experimental budget. Although we compared
+multiple encoder families and performed targeted follow-up studies, the total
+number of full training runs remained limited by available time and GPU
+resources. As a result, the hyperparameter search was relatively narrow and was
+not exhaustive across all possible hidden sizes, layer counts, dropout settings, learning
+rates, or preprocessing choices.
+
+We also did not run multiple random seeds for each final configuration. The
+reported CER values therefore correspond to single training runs rather than
+mean performance with variance estimates. This makes the comparison useful for a
+course project setting, but it also means that some of the reported gaps between
+models could partly reflect run-to-run randomness in optimization.
+
+Finally, our evaluation relies primarily on held-out performance from one test
+session and does not include broader robustness checks such as cross-user
+transfer, repeated-session averaging, or hardware variation. These omissions
+mean that the report should be interpreted as a focused single-user architecture
+study rather than a definitive conclusion about the best emg2qwerty model in
+general.
 
 \subsection{Reproducibility notes}
 
-The final report should include the exact training command, environment, and
-best checkpoint settings for the main comparison. One compact way to do this is
-to mention the training command in the discussion or appendix, for example using
-Hydra overrides such as \texttt{user=single\_user model=gru\_ctc
-	trainer.max\_epochs=40}. Add the exact command, seed, and device information
-once your final experiment recipe is settled.
+Below are the exact training commands, environment, and
+best checkpoint settings for reproducing our results from the project
+repository~[4]. 
 
 \subsubsection{Running RNN}
 In main, run:
@@ -412,7 +425,7 @@ python -m emg2qwerty.train \
 In main, run:
 \begin{verbatim}
 python -m emg2qwerty.train \
-  =single_user model=gru_ctc \
+  user=single_user model=gru_ctc \
   trainer.accelerator=gpu \
   trainer.devices=1 \
   trainer.max_epochs=1 \
@@ -423,7 +436,7 @@ python -m emg2qwerty.train \
 In main, run:
 \begin{verbatim}
 python -m emg2qwerty.train \
-  =single_user model=hybrid_ctc \
+  user=single_user model=hybrid_ctc \
   trainer.accelerator=gpu \
   trainer.devices=1 \
   trainer.max_epochs=1 \
@@ -456,7 +469,7 @@ and then add this specifier
 in the transforms list.
 
 \begin{table}[t]
-	\caption{Compute and reproducibility checklist for final insertion}
+	\caption{Compute and reproducibility information}
 	\label{tab:compute}
 	\centering
 	\small
@@ -497,8 +510,20 @@ Berenzweig, Anuoluwapo Bolarinwa, Alexandre Gramfort, and Michael I.\ Mandel.
 
 [3] ECE C147/C247 staff. \textit{ECE C147/C247, Winter 2026 project
 	guidelines}, 2026.
+
+[4] lordboba. \textit{ece-c147a-final}. GitHub repository, 2026. Available at
+\url{https://github.com/lordboba/ece-c147a-final}.
+
+[5] Junyoung Chung, Caglar Gulcehre, KyungHyun Cho, and Yoshua Bengio.
+\textit{Empirical evaluation of gated recurrent neural networks on sequence
+	modeling}, 2014. arXiv:1412.3555.
+
+[6] Almustapha A.\ Wakili, Babajide J.\ Asaju, and Woosub Jung.
+\textit{Evaluating BiLSTM and CNN+GRU approaches for human activity recognition
+	using WiFi CSI data}, 2025. arXiv:2506.11165.
 }
 
+\clearpage
 \appendix
 
 \section{Hyperparameter tuning runs}
@@ -562,11 +587,10 @@ reported metrics are validation CER, test CER, and validation loss.
 	37   & 128    & 2      & 0.0001 & 0.0     & 71.02   & 63.99    & 2.4464        \\
 	38   & 128    & 2      & 0.0003 & 0.0     & 71.02   & 63.99    & 2.4464        \\
 	39   & 128    & 2      & 0.0001 & 0.3     & 71.87   & 65.33    & 2.4487        \\
-	40   & ?      & ?      & ?      & ?       & 100.00  & 100.00   & 7.3869        \\
-	41   & 128    & 2      & 0.0001 & 0.1     & 104.45  & 78.32    & 4.3515        \\
-	42   & 128    & 2      & 0.0001 & 0.0     & 107.73  & 79.10    & 4.5090        \\
-	43   & 128    & 2      & 0.0001 & 0.3     & 107.75  & 80.79    & 4.4906        \\
-	44   & 128    & 2      & 0.0001 & 0.2     & 108.06  & 80.79    & 4.5392        \\
+	40   & 128    & 2      & 0.0001 & 0.1     & 104.45  & 78.32    & 4.3515        \\
+	41   & 128    & 2      & 0.0001 & 0.0     & 107.73  & 79.10    & 4.5090        \\
+	42   & 128    & 2      & 0.0001 & 0.3     & 107.75  & 80.79    & 4.4906        \\
+	43   & 128    & 2      & 0.0001 & 0.2     & 108.06  & 80.79    & 4.5392        \\
 \end{longtable}
 
 \end{document}
